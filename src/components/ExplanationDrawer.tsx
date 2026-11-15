@@ -19,14 +19,20 @@ export function ExplanationDrawer({
   onOpenChange,
   question,
   selectedIndex,
+  stepsOverride,
+  stepsDir = "rtl",
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   question: UnifiedQuestion | null;
   selectedIndex: number | null;
+  stepsOverride?: string[];
+  stepsDir?: "ltr" | "rtl";
 }) {
   if (!question) return null;
   const isCorrect = selectedIndex === question.correctIndex;
+  const steps = stepsOverride ?? question.stepsAr;
+  const isLtrSteps = stepsDir === "ltr";
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -98,14 +104,14 @@ export function ExplanationDrawer({
               </section>
             ) : null}
 
-            {question.stepsAr?.length ? (
+            {steps?.length ? (
               <section className="mb-5">
                 <h3 className="mb-2 flex items-center gap-2 text-[11.5px] font-semibold text-mist">
                   <ListOrdered size={14} className="text-ember" />
                   Solution steps
                 </h3>
-                <ol className="grid gap-2">
-                  {question.stepsAr.map((step, index) => (
+                <ol dir={isLtrSteps ? "ltr" : "rtl"} className="grid gap-2">
+                  {steps.map((step, index) => (
                     <li
                       key={index}
                       className="flex gap-3 rounded-[12px] border border-white/[0.06] bg-white/[0.02] px-3 py-2.5"
@@ -113,7 +119,13 @@ export function ExplanationDrawer({
                       <span className="mt-0.5 font-mono text-[10px] text-ember">
                         {String(index + 1).padStart(2, "0")}
                       </span>
-                      <span className="mixed-ar flex-1 text-[12.5px] leading-7 text-[#d8dde6]">
+                      <span
+                        className={
+                          isLtrSteps
+                            ? "flex-1 text-[12.5px] leading-7 text-[#d8dde6]"
+                            : "mixed-ar flex-1 text-[12.5px] leading-7 text-[#d8dde6]"
+                        }
+                      >
                         {step}
                       </span>
                     </li>

@@ -1,4 +1,5 @@
 import type { ChapterStat } from "@/lib/progress";
+import type { PatternsLang } from "@/data/patterns_en";
 import { cn, formatPercent } from "@/lib/format";
 
 export function ChapterRail({
@@ -6,11 +7,13 @@ export function ChapterRail({
   active,
   onChange,
   showProgress = true,
+  lang = "ar",
 }: {
   stats: ChapterStat[];
   active: number;
   onChange: (chapter: number) => void;
   showProgress?: boolean;
+  lang?: PatternsLang;
 }) {
   return (
     <div className="hide-scrollbar -mx-1 mb-6 flex gap-2 overflow-x-auto px-1 pb-1">
@@ -23,7 +26,7 @@ export function ChapterRail({
             onClick={() => onChange(chapter.number)}
             aria-pressed={isActive}
             className={cn(
-              "group relative flex min-w-[176px] shrink-0 flex-col gap-2 rounded-[14px] border px-3.5 py-3 text-left transition-colors duration-150",
+              "group relative flex min-w-[176px] shrink-0 flex-col gap-2 rounded-[14px] border px-3.5 py-3 text-start transition-colors duration-150",
               isActive
                 ? "border-ember/40 bg-ember/[0.07]"
                 : "border-white/[0.07] bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]",
@@ -50,13 +53,14 @@ export function ChapterRail({
               ) : null}
             </div>
             <div
-              dir="rtl"
+              dir={lang === "ar" ? "rtl" : "ltr"}
               className={cn(
-                "mixed-ar line-clamp-2 text-right text-[12px] font-semibold leading-[1.5]",
+                "line-clamp-2 text-start text-[12px] font-semibold leading-[1.5]",
+                lang === "ar" && "mixed-ar",
                 isActive ? "text-chalk" : "text-mist",
               )}
             >
-              {chapter.titleAr}
+              {lang === "ar" ? chapter.titleAr : chapter.title}
             </div>
             {showProgress ? (
               <div className="flex items-center gap-2">

@@ -13,6 +13,7 @@ import {
   type UnifiedQuestion,
 } from "@/lib/questions";
 import type { CardKind } from "@/lib/cards";
+import type { PatternsLang } from "@/data/patterns_en";
 
 export type TimerMode = "off" | "question";
 export type TimerPreset = 30 | 45 | 60 | 90;
@@ -48,6 +49,7 @@ export interface ProgressPrefs {
   lastCardKind: CardKind | "mixed";
   speedrunDeck: string;
   speedrunShuffle: boolean;
+  patternsLang: PatternsLang;
 }
 
 export interface ProgressState {
@@ -70,6 +72,7 @@ export const defaultPrefs: ProgressPrefs = {
   lastCardKind: "mixed",
   speedrunDeck: "master",
   speedrunShuffle: false,
+  patternsLang: "en",
 };
 
 export function createDefaultState(): ProgressState {
@@ -104,6 +107,7 @@ function loadState(): ProgressState {
         timerPreset: ([30, 45, 60, 90] as const).includes(prefs.timerPreset)
           ? prefs.timerPreset
           : 60,
+        patternsLang: prefs.patternsLang === "ar" ? "ar" : "en",
       },
       mock: parsed.mock ?? null,
     };
