@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Link } from "react-router-dom";
 import {
-  ArrowLeft,
+  ArrowRight,
   Check,
   Flame,
   GripVertical,
@@ -25,7 +25,6 @@ import { Chip, Tag } from "@/components/Chip";
 import { ProgressBar, Ring, Stat } from "@/components/Progress";
 import { CodeBlock } from "@/components/CodeBlock";
 import {
-  chapterArabicLabel,
   originLabel,
   priorityLabel,
   type UnifiedQuestion,
@@ -36,21 +35,20 @@ import { cn, formatClock, formatPercent } from "@/lib/format";
 
 type Phase = "setup" | "run" | "done";
 
-const deckOptions: Array<{ id: string; label: string; arabic: string; description: string }> = [
-  { id: "master", label: "Master", arabic: "كل الأسئلة", description: "87 سؤال مرتبين بالأولوية" },
-  { id: "weak", label: "Weak pool", arabic: "نقاط الضعف", description: "الشابترات اللي فيها أخطاء" },
-  { id: "mistakes", label: "Mistakes", arabic: "الأخطاء", description: "كل سؤال غلطت فيه" },
-  { id: "saved", label: "Saved", arabic: "المحفوظات", description: "الأسئلة اللي علّمتها" },
-  { id: "quiz", label: "Quiz bank", arabic: "أسئلة الامتحان", description: "27 سؤال من السيتات" },
-  { id: "ai-theory", label: "AI Theory", arabic: "نظري إضافي", description: "36 سؤال نظري" },
-  { id: "ai-practical", label: "AI Practical", arabic: "مسائل إضافية", description: "24 مسألة عملية" },
+const deckOptions: Array<{ id: string; label: string; description: string }> = [
+  { id: "master", label: "All questions", description: "87 questions ordered by priority" },
+  { id: "weak", label: "Weak pool", description: "Chapters with logged mistakes" },
+  { id: "mistakes", label: "Mistakes", description: "Every question you got wrong" },
+  { id: "saved", label: "Saved", description: "Questions you starred" },
+  { id: "quiz", label: "Quiz bank", description: "27 questions from the sets" },
+  { id: "ai-theory", label: "AI Theory", description: "36 theory questions" },
+  { id: "ai-practical", label: "AI Practical", description: "24 practical problems" },
   ...Array.from({ length: 6 }, (_, index) => {
     const chapter = index + 1;
     return {
       id: `chapter-${chapter}`,
       label: `Chapter ${chapter}`,
-      arabic: chapterArabicLabel(chapter),
-      description: `كل أسئلة الشابتر ${chapter}`,
+      description: `All questions in chapter ${chapter}`,
     };
   }),
 ];
@@ -151,19 +149,22 @@ export function SpeedrunPage() {
 
   const next = useCallback(() => {
     if (!current) return;
+    if (!lastCorrect) {
+      setRequeues((value) => value + 1);
+    }
     setQueue((previous) => {
       const [first, ...rest] = previous;
       if (!first) return previous;
       if (!lastCorrect) {
         const insertAt = Math.min(rest.length, 3 + Math.floor(Math.random() * 2));
         rest.splice(insertAt, 0, first);
-        setRequeues((value) => value + 1);
       }
       return rest;
     });
+    setSecondsLeft(preset);
     setSelected(null);
     setAnswered(false);
-  }, [current, lastCorrect]);
+  }, [current, lastCorrect, preset]);
 
   useEffect(() => {
     if (phase !== "run") return;
@@ -274,7 +275,7 @@ export function SpeedrunPage() {
             <Link to="/">
               <Button variant="quiet" size="sm" className="gap-1.5">
                 <Home size={13} />
-                خروج
+                Exit
               </Button>
             </Link>
           </div>
@@ -286,12 +287,14 @@ export function SpeedrunPage() {
             </div>
             <h1 className="text-balance text-[30px] font-bold leading-[1.2] tracking-[-0.04em] text-chalk sm:text-[38px]">
               Speedrun.
-              <span className="mr-2 text-ember">سرعة ودقة.</span>
+              <span className="ml-2 text-ember">Speed and accuracy.</span>
             </h1>
             <p className="mt-2 max-w-[58ch] text-[12.5px] leading-6 text-mist">
-              كل سؤال غلط بيرجع بعد 3–4 أسئلة. اختار deck، شغّل المؤقت، واستخدم الكيبورد:
-              <span className="mx-1 font-mono text-ember">1–4</span> للإجابة و
-              <span className="mx-1 font-mono text-ember">Enter</span> للسؤال التالي.
+              Every wrong question comes back after 3–4 questions. Pick a deck,
+              start the timer, and use the keyboard:
+              <span className="mx-1 font-mono text-ember">1–4</span> to answer and
+              <span className="mx-1 font-mono text-ember">Enter</span> for the next
+              question.
             </p>
           </div>
 
@@ -300,7 +303,7 @@ export function SpeedrunPage() {
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Layers size={15} className="text-ember" />
-                  <h2 className="text-[13px] font-semibold text-chalk">اختار الـ Deck</h2>
+                  <h2 className="text-[13px] font-semibold text-chalk">Pick a deck</h2>
                 </div>
                 <Tag tone="mono">{deckSize} questions</Tag>
               </div>
@@ -315,7 +318,7 @@ export function SpeedrunPage() {
                       disabled={count === 0}
                       onClick={() => updatePrefs({ speedrunDeck: option.id })}
                       className={cn(
-                        "rounded-[12px] border px-3.5 py-2.5 text-right transition-colors disabled:opacity-40",
+                        "rounded-[12px] border px-3.5 py-2.5 text-left transition-colors disabled:opacity-40",
                         active
                           ? "border-ember/40 bg-ember/[0.08]"
                           : "border-white/[0.07] bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]",
@@ -328,16 +331,13 @@ export function SpeedrunPage() {
                             active ? "text-chalk" : "text-mist",
                           )}
                         >
-                          {option.arabic}
+                          {option.label}
                         </span>
                         <span className="tabular font-mono text-[9px] text-dim">{count}</span>
                       </div>
                       <div className="mt-0.5 flex items-center justify-between gap-2">
                         <span className="truncate text-[9.5px] text-dim">
                           {option.description}
-                        </span>
-                        <span className="shrink-0 font-mono text-[8px] tracking-[0.08em] text-dim/70">
-                          {option.label}
                         </span>
                       </div>
                     </button>
@@ -350,19 +350,19 @@ export function SpeedrunPage() {
               <div className="glass rounded-[20px] p-4">
                 <div className="mb-3 flex items-center gap-2">
                   <Settings2 size={15} className="text-ember" />
-                  <h2 className="text-[13px] font-semibold text-chalk">الإعدادات</h2>
+                  <h2 className="text-[13px] font-semibold text-chalk">Settings</h2>
                 </div>
 
                 <div className="grid gap-3">
                   <div>
-                    <div className="mb-1.5 text-[10px] text-dim">ترتيب الأسئلة</div>
+                    <div className="mb-1.5 text-[10px] text-dim">Question order</div>
                     <div className="flex gap-1.5">
                       <Chip
                         active={!shuffleEnabled}
                         tone="ember"
                         onClick={() => updatePrefs({ speedrunShuffle: false })}
                       >
-                        مرتب
+                        Ordered
                       </Chip>
                       <Chip
                         active={shuffleEnabled}
@@ -370,20 +370,20 @@ export function SpeedrunPage() {
                         onClick={() => updatePrefs({ speedrunShuffle: true })}
                       >
                         <Shuffle size={11} />
-                        عشوائي
+                        Shuffled
                       </Chip>
                     </div>
                   </div>
 
                   <div>
-                    <div className="mb-1.5 text-[10px] text-dim">المؤقت لكل سؤال</div>
+                    <div className="mb-1.5 text-[10px] text-dim">Per-question timer</div>
                     <div className="flex flex-wrap gap-1.5">
                       <Chip
                         active={!timerEnabled}
                         tone="ember"
                         onClick={() => setTimerEnabled(false)}
                       >
-                        مقفول
+                        Off
                       </Chip>
                       {presets.map((value) => (
                         <Chip
@@ -404,7 +404,7 @@ export function SpeedrunPage() {
                   </div>
 
                   <div className="flex items-center justify-between rounded-[10px] border border-white/[0.06] bg-white/[0.02] px-3 py-2">
-                    <span className="text-[10.5px] text-mist">مؤثرات صوتية</span>
+                    <span className="text-[10.5px] text-mist">Sound effects</span>
                     <button
                       type="button"
                       onClick={() => updatePrefs({ sfx: !soundOn })}
@@ -415,7 +415,7 @@ export function SpeedrunPage() {
                           ? "border-ember/30 bg-ember/10 text-ember"
                           : "border-white/10 bg-white/[0.03] text-dim",
                       )}
-                      aria-label={soundOn ? "إيقاف الصوت" : "تشغيل الصوت"}
+                      aria-label={soundOn ? "Mute sound" : "Unmute sound"}
                     >
                       {soundOn ? <Volume2 size={13} /> : <VolumeX size={13} />}
                     </button>
@@ -426,11 +426,11 @@ export function SpeedrunPage() {
               <div className="rounded-[16px] border border-ember/20 bg-ember/[0.045] p-4">
                 <div className="flex items-center gap-2 text-[11px] font-semibold text-ember">
                   <Flame size={14} />
-                  قاعدة إعادة السؤال
+                  Requeue rule
                 </div>
                 <p className="mt-1.5 text-[10.5px] leading-5 text-mist">
-                  لو غلطت، السؤال بيتأجل 3 أو 4 مواقع في الطابور ويرجعلك. مش هيطلع من
-                  الجلسة غير لما تجاوبه صح.
+                  If you miss, the question moves 3–4 slots back in the queue. It
+                  only leaves the session once you answer it correctly.
                 </p>
               </div>
 
@@ -442,11 +442,11 @@ export function SpeedrunPage() {
                 className="w-full gap-2"
               >
                 <Play size={15} />
-                ابدأ السرعة
+                Start speedrun
               </Button>
               {deckSize === 0 ? (
                 <p className="text-center text-[10px] text-clay">
-                  الـ deck ده فاضي — اختار deck تاني أو حل أسئلة الأول.
+                  This deck is empty — pick another one or solve some questions first.
                 </p>
               ) : null}
             </div>
@@ -471,7 +471,7 @@ export function SpeedrunPage() {
             <Link to="/">
               <Button variant="quiet" size="sm" className="gap-1.5">
                 <Home size={13} />
-                خروج
+                Exit
               </Button>
             </Link>
           </div>
@@ -488,14 +488,14 @@ export function SpeedrunPage() {
                   SESSION COMPLETE
                 </Tag>
                 <h1 className="mt-2 text-[26px] font-bold tracking-[-0.04em] text-chalk">
-                  {total} سؤال اتقفل
+                  {total} questions cleared
                 </h1>
                 <p className="mt-1.5 max-w-[46ch] text-[12px] leading-6 text-mist">
                   {accuracy >= 0.85
-                    ? "دقة عالية وسرعة كويسة. جرّب deck أصعب أو قلّل وقت السؤال."
+                    ? "High accuracy and good speed. Try a harder deck or shorten the per-question timer."
                     : accuracy >= 0.6
-                      ? "أداء متوسط. الأسئلة اللي رجعت أكتر من مرة هي اللي محتاجة مراجعة."
-                      : "السرعة مش كل حاجة — ارجع للشرح والبطاقات قبل speedrun تاني."}
+                      ? "Solid middle ground. The questions that came back more than once are the ones to review."
+                      : "Speed isn't everything — go back to the explanations and cards before another speedrun."}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   <Tag tone="mono">{formatClock(elapsed)}</Tag>
@@ -508,39 +508,39 @@ export function SpeedrunPage() {
 
             <div className="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
               <div className="rounded-[12px] border border-white/[0.07] bg-white/[0.025] p-3">
-                <Stat value={correctAttempts} label="إجابات صح" tone="jade" />
+                <Stat value={correctAttempts} label="Correct" tone="jade" />
               </div>
               <div className="rounded-[12px] border border-white/[0.07] bg-white/[0.025] p-3">
-                <Stat value={attempts - correctAttempts} label="إجابات غلط" tone="clay" />
+                <Stat value={attempts - correctAttempts} label="Wrong" tone="clay" />
               </div>
               <div className="rounded-[12px] border border-white/[0.07] bg-white/[0.025] p-3">
-                <Stat value={bestStreak} label="أطول streak" tone="ember" />
+                <Stat value={bestStreak} label="Longest streak" tone="ember" />
               </div>
               <div className="rounded-[12px] border border-white/[0.07] bg-white/[0.025] p-3">
-                <Stat value={requeues} label="إعادة جدولة" />
+                <Stat value={requeues} label="Requeues" />
               </div>
             </div>
 
             <div className="relative mt-6 flex flex-wrap gap-2">
               <Button variant="primary" onClick={start} className="gap-1.5">
                 <RotateCcw size={14} />
-                جولة تانية
+                Run again
               </Button>
               <Button variant="secondary" onClick={() => setPhase("setup")} className="gap-1.5">
                 <Settings2 size={14} />
-                غيّر الـ deck
+                Change deck
               </Button>
               <Link to="/solve">
                 <Button variant="quiet" className="gap-1.5">
-                  <ArrowLeft size={14} />
-                  روح للحل
+                  <ArrowRight size={14} />
+                  Go to Solve
                 </Button>
               </Link>
             </div>
           </div>
 
           <p className="mt-4 text-center text-[10px] text-dim">
-            كل إجابة اتسجلت في تقدمك — الـ Weak Topics هتتحدث تلقائياً.
+            Every answer was saved to your progress — Weak Topics updates automatically.
           </p>
         </div>
       </div>
@@ -551,9 +551,9 @@ export function SpeedrunPage() {
     return (
       <div className="grid min-h-screen place-items-center px-4">
         <div className="glass rounded-[20px] p-8 text-center">
-          <p className="text-mist">الـ deck خلص.</p>
+          <p className="text-mist">Deck complete.</p>
           <Button className="mt-3" onClick={() => setPhase("setup")}>
-            رجوع للإعدادات
+            Back to setup
           </Button>
         </div>
       </div>
@@ -583,7 +583,7 @@ export function SpeedrunPage() {
             <Link to="/">
               <Button variant="quiet" size="sm" className="gap-1.5">
                 <X size={13} />
-                <span className="hidden sm:inline">خروج</span>
+                <span className="hidden sm:inline">Exit</span>
               </Button>
             </Link>
           </div>
@@ -619,7 +619,7 @@ export function SpeedrunPage() {
 
           {current.code ? <CodeBlock code={current.code} className="mt-3" /> : null}
 
-          <div className="mt-4 grid gap-2 sm:grid-cols-2" role="group" aria-label="اختيارات الإجابة">
+          <div className="mt-4 grid gap-2 sm:grid-cols-2" role="group" aria-label="Answer options">
             {current.options.map((option, optionIndex) => {
               const isSelected = selected === optionIndex;
               const isCorrect = optionIndex === current.correctIndex;
@@ -691,7 +691,7 @@ export function SpeedrunPage() {
                       lastCorrect ? "text-jade" : "text-clay",
                     )}
                   >
-                    {lastCorrect ? "صح — كمّل" : "غلط — هيرجع بعد 3–4 أسئلة"}
+                    {lastCorrect ? "Correct — keep going" : "Wrong — returns in 3–4 questions"}
                   </span>
                 </div>
                 <span dir="ltr" className="font-mono text-[10.5px] text-mist">
@@ -708,11 +708,11 @@ export function SpeedrunPage() {
                   <kbd className="rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5 font-mono">
                     Enter
                   </kbd>
-                  للسؤال التالي
+                  for the next question
                 </span>
                 <Button variant="primary" size="sm" onClick={next} className="gap-1.5">
-                  التالي
-                  <ArrowLeft size={13} />
+                  Next
+                  <ArrowRight size={13} />
                 </Button>
               </div>
             </div>
@@ -722,19 +722,19 @@ export function SpeedrunPage() {
                 <kbd className="rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5 font-mono">
                   1–4
                 </kbd>
-                اختار
+                answer
               </span>
               <span className="h-1 w-1 rounded-full bg-white/15" />
               <span className="flex items-center gap-1.5">
                 <kbd className="rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5 font-mono">
                   A–D
                 </kbd>
-                اختار
+                answer
               </span>
               <span className="h-1 w-1 rounded-full bg-white/15" />
               <span className="flex items-center gap-1.5">
                 <Timer size={10} className="text-ember" />
-                {timerEnabled ? `${preset}s لكل سؤال` : "المؤقت مقفول"}
+                {timerEnabled ? `${preset}s per question` : "Timer off"}
               </span>
             </div>
           )}
@@ -743,7 +743,7 @@ export function SpeedrunPage() {
         <div className="flex flex-wrap items-center justify-between gap-2 text-[9.5px] text-dim">
           <span className="flex items-center gap-1.5">
             <Sparkles size={11} className="text-ember" />
-            لو المؤقت خلص، السؤال بيتسجل غلط ويرجع في الطابور.
+            If the timer runs out, the question is logged wrong and returns to the queue.
           </span>
           <span className="font-mono">elapsed {formatClock(elapsed)}</span>
         </div>
@@ -769,7 +769,7 @@ export function SpeedrunPage() {
               type="button"
               onClick={() => updatePrefs({ sfx: !soundOn })}
               className="grid h-5 w-5 place-items-center rounded text-dim hover:text-chalk"
-              aria-label={soundOn ? "إيقاف الصوت" : "تشغيل الصوت"}
+              aria-label={soundOn ? "Mute sound" : "Unmute sound"}
             >
               {soundOn ? <Volume2 size={10} /> : <VolumeX size={10} />}
             </button>
@@ -782,7 +782,7 @@ export function SpeedrunPage() {
                 });
               }}
               className="grid h-5 w-5 place-items-center rounded text-dim hover:text-chalk"
-              aria-label={timerEnabled ? "إيقاف المؤقت" : "تشغيل المؤقت"}
+              aria-label={timerEnabled ? "Pause timer" : "Start timer"}
             >
               <Timer size={10} />
             </button>

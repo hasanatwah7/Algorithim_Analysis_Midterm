@@ -41,7 +41,7 @@ function buildSteps(): PartitionStep[] {
         j: j + 1,
         action:
           oldI === j
-            ? `A[${j + 1}] = ${value} ≤ ${pivot} → i = ${i} (نفس المكان، مفيش swap فعلي)`
+            ? `A[${j + 1}] = ${value} ≤ ${pivot} → i = ${i} (same slot, no actual swap)`
             : `A[${j + 1}] = ${value} ≤ ${pivot} → i = ${i} · swap(${oldI + 1}, ${j + 1})`,
         swapped: oldI === j ? [] : [oldI, j],
         pivotIndex: 7,
@@ -51,7 +51,7 @@ function buildSteps(): PartitionStep[] {
         array: [...array],
         i,
         j: j + 1,
-        action: `A[${j + 1}] = ${value} > ${pivot} → تجاهل و j++`,
+        action: `A[${j + 1}] = ${value} > ${pivot} → skip and j++`,
         swapped: [],
         pivotIndex: 7,
       });
@@ -63,7 +63,7 @@ function buildSteps(): PartitionStep[] {
     array: [...array],
     i,
     j: array.length,
-    action: `swap(A[${i + 1}], pivot) → pivot استقر في q = ${i + 1}`,
+    action: `swap(A[${i + 1}], pivot) → pivot settles at q = ${i + 1}`,
     swapped: [i, array.length - 1],
     done: true,
     pivotIndex,
@@ -90,7 +90,7 @@ export function PartitionBench() {
   return (
     <BenchShell
       title="PARTITION Tracer"
-      description="تتبع Lomuto Partition على نفس مصفوفة المحاضرة. شوف i و j والـ swaps في كل خطوة."
+      description="Trace Lomuto Partition on the same lecture array. Watch i, j, and the swaps at every step."
       controls={
         <BenchControls
           index={index}

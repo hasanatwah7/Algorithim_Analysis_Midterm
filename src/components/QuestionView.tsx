@@ -1,5 +1,5 @@
 import {
-  ArrowLeft,
+  ArrowRight,
   BookOpen,
   Check,
   Clock3,
@@ -29,7 +29,7 @@ export function QuestionView({
   total,
   timedOut = false,
   onNext,
-  nextLabel = "السؤال التالي",
+  nextLabel = "Next question",
   showMeta = true,
 }: {
   question: UnifiedQuestion;
@@ -61,7 +61,7 @@ export function QuestionView({
             {question.difficulty ? <Tag>{question.difficulty}</Tag> : null}
             {timedOut ? (
               <Tag tone="clay">
-                <Clock3 size={10} /> الوقت خلص
+                <Clock3 size={10} /> Time's up
               </Tag>
             ) : null}
           </div>
@@ -76,7 +76,7 @@ export function QuestionView({
                 type="button"
                 onClick={onToggleSave}
                 aria-pressed={saved}
-                aria-label={saved ? "شيل من المحفوظات" : "احفظ السؤال"}
+                aria-label={saved ? "Remove from saved" : "Save question"}
                 className={cn(
                   "grid h-9 w-9 place-items-center rounded-[9px] border transition-colors",
                   saved
@@ -120,7 +120,7 @@ export function QuestionView({
         <div
           className="grid gap-2"
           role="group"
-          aria-label="اختيارات الإجابة"
+          aria-label="Answer options"
         >
           {question.options.map((option, optionIndex) => {
             const isSelected = selectedIndex === optionIndex;
@@ -205,17 +205,17 @@ export function QuestionView({
                     correct ? "text-jade" : "text-clay",
                   )}
                 >
-                  {correct ? "إجابة صحيحة" : "إجابة غلط"}
+                  {correct ? "Correct answer" : "Wrong answer"}
                 </div>
                 <div dir="ltr" className="mt-0.5 text-left font-mono text-[10.5px] text-mist">
-                  {correct ? "Nice. الشرح متاح." : `Correct: ${question.correctAnswer}`}
+                  {correct ? "Nice. Explanation available." : `Correct: ${question.correctAnswer}`}
                 </div>
               </div>
             </div>
             {onOpenExplanation ? (
               <Button variant="secondary" size="sm" onClick={onOpenExplanation} className="gap-1.5">
                 <BookOpen size={14} />
-                افتح الشرح
+                Open explanation
               </Button>
             ) : null}
           </div>
@@ -224,7 +224,7 @@ export function QuestionView({
         {mode === "exam" ? (
           <div className="mt-4 flex items-center gap-2 text-[10.5px] text-dim">
             <Flag size={12} className="text-ember" />
-            اختيارك محفوظ في المسودة. مفيش تصحيح قبل التسليم.
+            Your choice is saved in the draft. Nothing is graded until you submit.
           </div>
         ) : null}
 
@@ -232,7 +232,7 @@ export function QuestionView({
           <div className="mt-4 flex justify-end">
             <Button variant="primary" onClick={onNext} className="gap-1.5">
               {nextLabel}
-              <ArrowLeft size={15} />
+              <ArrowRight size={15} />
             </Button>
           </div>
         ) : null}

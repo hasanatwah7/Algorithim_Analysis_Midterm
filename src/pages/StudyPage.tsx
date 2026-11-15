@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  ArrowLeft,
+  ArrowRight,
   BookOpenCheck,
   BrainCircuit,
   CheckCircle2,
@@ -32,10 +32,10 @@ import { cn, formatPercent } from "@/lib/format";
 
 type Tab = "theory" | "cards" | "bench";
 
-const tabs: Array<{ id: Tab; label: string; english: string; icon: typeof BookOpenCheck }> = [
-  { id: "theory", label: "النظري", english: "Theory", icon: BookOpenCheck },
-  { id: "cards", label: "البطاقات", english: "Anki", icon: Layers },
-  { id: "bench", label: "بنش تفاعلي", english: "Bench", icon: Sparkles },
+const tabs: Array<{ id: Tab; label: string; icon: typeof BookOpenCheck }> = [
+  { id: "theory", label: "Theory", icon: BookOpenCheck },
+  { id: "cards", label: "Anki", icon: Layers },
+  { id: "bench", label: "Bench", icon: Sparkles },
 ];
 
 export function StudyPage() {
@@ -60,7 +60,7 @@ export function StudyPage() {
   if (!chapter || !stat) {
     return (
       <div className="glass rounded-[20px] p-8 text-center text-mist">
-        تعذّر تحميل بيانات الشابتر.
+        Couldn't load chapter data.
       </div>
     );
   }
@@ -71,14 +71,13 @@ export function StudyPage() {
     <div>
       <PageHeader
         eyebrow="DEPARTMENT 01 · STUDY"
-        title="المذاكرة النظرية والبطاقات"
-        titleEn="Theory + Anki"
-        description="اقرأ المفاهيم كاملة، استرجع القوانين، واختبر نفسك ببطاقات أنكي. كل شابتر فيه بنش تفاعلي يشرح الفكرة اللي بتتسأل عليها."
+        title="Theory & Anki"
+        description="Read the full concepts, recall the formulas, and test yourself with Anki-style cards. Every chapter includes an interactive bench that explains the idea behind the question."
         actions={
           <Link to="/solve">
             <Button variant="primary" size="sm" className="gap-1.5">
               <ListChecks size={14} />
-              روح للحل
+              Go to Solve
             </Button>
           </Link>
         }
@@ -98,10 +97,10 @@ export function StudyPage() {
                   <Tag>{chapter.practical.length} patterns</Tag>
                 </div>
                 <h2 className="mt-2.5 text-balance text-[19px] font-bold leading-[1.35] tracking-[-0.03em] text-chalk">
-                  {chapter.titleAr}
+                  {chapter.title}
                 </h2>
                 <p dir="ltr" className="mt-1 text-left font-mono text-[10.5px] text-dim">
-                  {chapter.title}
+                  Chapter {chapter.number} · {chapter.titleAr}
                 </p>
               </div>
               <div className="shrink-0 rounded-[12px] border border-white/[0.07] bg-white/[0.02] px-3.5 py-2.5 text-center">
@@ -129,7 +128,6 @@ export function StudyPage() {
                 >
                   <Icon size={13} />
                   {item.label}
-                  <span className="font-mono text-[9px] opacity-55">{item.english}</span>
                 </Chip>
               );
             })}
@@ -158,7 +156,7 @@ export function StudyPage() {
                         <div className="mt-3.5">
                           <div className="mb-2 flex items-center gap-1.5 text-[10.5px] font-medium text-dim">
                             <Sigma size={12} className="text-ember" />
-                            القوانين
+                            Formulas
                           </div>
                           <FormulaList formulas={concept.formulas} />
                         </div>
@@ -195,17 +193,18 @@ export function StudyPage() {
                 <div className="flex items-center gap-2.5">
                   <BrainCircuit size={16} className="text-ember" />
                   <p className="text-[11.5px] leading-6 text-mist">
-                    خلصت النظري؟ اقلب البطاقات عشان تثبّت، وبعدها بصمج أنواع المسائل.
+                    Finished the theory? Flip the cards to lock it in, then drill the
+                    problem types.
                   </p>
                 </div>
                 <div className="flex gap-2">
                   <Button variant="secondary" size="sm" onClick={() => setTab("cards")}>
-                    البطاقات
+                    Cards
                   </Button>
                   <Link to="/patterns">
                     <Button variant="quiet" size="sm" className="gap-1.5">
-                      أنواع المسائل
-                      <ArrowLeft size={13} />
+                      Problem types
+                      <ArrowRight size={13} />
                     </Button>
                   </Link>
                 </div>
@@ -218,8 +217,8 @@ export function StudyPage() {
           {tab === "bench" ? (
             <div>
               <SectionHeading
-                title="بنش الشابتر"
-                subtitle="تفاعل مع الفكرة بدل ما تحفظها — جرّب القيم وشوف الخطوات بتتغير."
+                title="Chapter bench"
+                subtitle="Play with the idea instead of memorizing it — change the values and watch the steps update."
               />
               <ChapterBench chapter={chapterNumber} />
               <div className="mt-4 flex flex-wrap gap-2">
@@ -230,13 +229,13 @@ export function StudyPage() {
                       className="rounded-full border border-white/[0.07] bg-white/[0.02] px-3 py-1.5 text-[10px] text-dim"
                     >
                       {kind === "concept"
-                        ? "المفاهيم"
+                        ? "Concepts"
                         : kind === "formula"
-                          ? "القوانين"
+                          ? "Formulas"
                           : kind === "theory-qa"
-                            ? "أسئلة نظري"
-                            : "خطوات المسائل"}
-                      <span className="mr-1.5 font-mono text-[9px] text-mist">
+                            ? "Theory Q&A"
+                            : "Problem steps"}
+                      <span className="ml-1.5 font-mono text-[9px] text-mist">
                         {cardsFor(chapterNumber, kind).length}
                       </span>
                     </span>
@@ -250,7 +249,7 @@ export function StudyPage() {
         <aside className="flex flex-col gap-4 lg:sticky lg:top-[86px] lg:self-start">
           <SpotlightCard className="p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-[12px] font-semibold text-chalk">تقدم الشابتر</h3>
+              <h3 className="text-[12px] font-semibold text-chalk">Chapter progress</h3>
               <Target size={14} className="text-ember" />
             </div>
             <div className="flex items-center gap-4">
@@ -261,13 +260,13 @@ export function StudyPage() {
                 sublabel="mastery"
               />
               <div className="grid flex-1 gap-3">
-                <Stat value={`${stat.correct}/${stat.total}`} label="أسئلة صح" tone="jade" />
-                <Stat value={stat.wrong} label="أخطاء مسجلة" tone="clay" />
+                <Stat value={`${stat.correct}/${stat.total}`} label="Correct" tone="jade" />
+                <Stat value={stat.wrong} label="Logged mistakes" tone="clay" />
               </div>
             </div>
             <div className="mt-3 border-t border-white/[0.06] pt-3">
               <div className="mb-1.5 flex items-center justify-between text-[10px] text-dim">
-                <span>البطاقات المتقنة</span>
+                <span>Cards mastered</span>
                 <span className="tabular font-mono">
                   {masteredCards}/{chapterCards.length}
                 </span>
@@ -278,16 +277,16 @@ export function StudyPage() {
 
           <SpotlightCard className="p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-[12px] font-semibold text-chalk">محتوى الشابتر</h3>
+              <h3 className="text-[12px] font-semibold text-chalk">Chapter content</h3>
               <Layers size={14} className="text-ember" />
             </div>
             <div className="grid gap-2">
               {(
                 [
-                  ["concept", "مفاهيم"],
-                  ["formula", "قوانين"],
-                  ["theory-qa", "أسئلة نظري"],
-                  ["problem-steps", "خطوات مسائل"],
+                  ["concept", "Concepts"],
+                  ["formula", "Formulas"],
+                  ["theory-qa", "Theory Q&A"],
+                  ["problem-steps", "Problem steps"],
                 ] as const
               ).map(([kind, label]) => (
                 <div
@@ -302,7 +301,7 @@ export function StudyPage() {
               ))}
             </div>
             <div className="mt-3 flex items-center justify-between border-t border-white/[0.06] pt-3 text-[10px] text-dim">
-              <span>إجمالي البطاقات في التطبيق</span>
+              <span>Total cards in the app</span>
               <span className="font-mono text-mist">
                 {Object.values(cardCountByKind).reduce((sum, value) => sum + value, 0)}
               </span>
@@ -312,14 +311,14 @@ export function StudyPage() {
           <SpotlightCard className="p-4">
             <div className="mb-2 flex items-center gap-2">
               <CheckCircle2 size={14} className="text-jade" />
-              <h3 className="text-[12px] font-semibold text-chalk">روتين مقترح</h3>
+              <h3 className="text-[12px] font-semibold text-chalk">Suggested routine</h3>
             </div>
             <ol className="grid gap-2">
               {[
-                "اقرأ المفاهيم مرة بتركيز.",
-                "اقلب بطاقات القوانين قبل ما تشوف الإجابة.",
-                "حل أسئلة الشابتر في صفحة «حل».",
-                "ارجع للبنش لو حاجة لسه مش واضحة.",
+                "Read the concepts once, slowly.",
+                "Flip the formula cards before revealing the answer.",
+                "Solve the chapter questions in the Solve page.",
+                "Come back to the bench if something still feels unclear.",
               ].map((step, index) => (
                 <li key={step} className="flex gap-2.5">
                   <span

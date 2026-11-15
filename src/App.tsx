@@ -17,13 +17,14 @@ function NotFoundPage() {
       </span>
       <div className="font-mono text-[10px] tracking-[0.16em] text-dim">404 · LOST</div>
       <h1 className="mt-2 text-[20px] font-bold tracking-[-0.03em] text-chalk">
-        الصفحة دي مش موجودة
+        This page doesn't exist
       </h1>
       <p className="mt-2 max-w-[40ch] text-[12px] leading-6 text-mist">
-        يمكن الرابط قديم أو مكتوب غلط. ارجع للرئيسية واختار قسم من الأقسام التلاتة.
+        The link may be old or mistyped. Head back home and pick one of the three
+        departments.
       </p>
       <Link to="/" className="mt-5">
-        <Button variant="primary">رجوع للرئيسية</Button>
+        <Button variant="primary">Back home</Button>
       </Link>
     </div>
   );

@@ -23,7 +23,7 @@ function buildBinarySteps(): BinaryStep[] {
     const mid = Math.floor((low + high) / 2);
     const value = binaryArray[mid - 1];
     if (value === target) {
-      steps.push({ low, high, mid, value, action: `A[${mid}] = ${target} — لقيناه.`, found: true });
+      steps.push({ low, high, mid, value, action: `A[${mid}] = ${target} — found it.`, found: true });
       break;
     }
     if (value < target) {
@@ -72,7 +72,7 @@ export function PrimitiveOpsBench() {
   return (
     <BenchShell
       title="Primitive Operations Bench"
-      description="عدّ عمليات ArrayMax، أو تتبع Binary Search خطوة بخطوة على نفس مثال المحاضرة."
+      description="Count ArrayMax's primitive operations, or trace Binary Search step by step on the same lecture example."
       controls={
         <div className="flex gap-1.5">
           <Chip active={mode === "count"} tone="ember" onClick={() => setMode("count")}>
@@ -88,7 +88,7 @@ export function PrimitiveOpsBench() {
         <div className="grid gap-4 lg:grid-cols-[1fr_1.1fr]">
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-[11px] text-mist">حجم المصفوفة n</span>
+              <span className="text-[11px] text-mist">Array size n</span>
               <span className="tabular font-mono text-[13px] text-ember">{n}</span>
             </div>
             <input
@@ -98,7 +98,7 @@ export function PrimitiveOpsBench() {
               value={n}
               onChange={(event) => setN(Number(event.target.value))}
               className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/10 accent-[#E7A24B]"
-              aria-label="حجم المصفوفة"
+              aria-label="Array size"
             />
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-[12px] border border-white/[0.06] bg-black/20 p-3">
@@ -129,8 +129,8 @@ export function PrimitiveOpsBench() {
               </div>
             </div>
             <p className="mt-3 text-[10.5px] leading-5 text-dim">
-              الفرق ثابت تقريباً (2n − 2) — الاتنين <span className="font-mono text-mist">O(n)</span>،
-              فالـ scalability واحدة.
+              The gap is essentially constant (2n − 2) — both are <span className="font-mono text-mist">O(n)</span>,
+              so scalability is the same.
             </p>
           </div>
           <CodeBlock code={arrayMaxCode} label="ARRAY-MAX" />

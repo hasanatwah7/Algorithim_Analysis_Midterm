@@ -26,27 +26,23 @@ export interface StudyCard {
 
 export const cardKindMeta: Record<
   CardKind,
-  { label: string; arabic: string; description: string }
+  { label: string; description: string }
 > = {
   concept: {
     label: "Concepts",
-    arabic: "المفاهيم",
-    description: "عرّف واشرح كل مفهوم من النظري.",
+    description: "Define and explain every theory concept.",
   },
   formula: {
     label: "Formulas",
-    arabic: "القوانين",
-    description: "استرجع القانون قبل ما تشوفه.",
+    description: "Recall the formula before you reveal it.",
   },
   "theory-qa": {
     label: "Theory Q&A",
-    arabic: "أسئلة نظري",
-    description: "سؤال وإجابة من بنك الأسئلة النظري.",
+    description: "Question and answer from the theory bank.",
   },
   "problem-steps": {
     label: "Problem Steps",
-    arabic: "خطوات المسائل",
-    description: "نوع المسألة، وخطوات الحل المجردة.",
+    description: "The problem type and its abstract solution steps.",
   },
 };
 
@@ -57,7 +53,7 @@ function conceptCards(): StudyCard[] {
       kind: "concept" as const,
       chapterNumber: chapter.number,
       title: concept.title,
-      prompt: `اشرح: ${concept.title}`,
+      prompt: `Explain: ${concept.title}`,
       bodyAr: concept.contentAr,
       keyTerms: concept.keyTerms,
       formulas: concept.formulas,
@@ -78,7 +74,7 @@ function formulaCards(): StudyCard[] {
           kind: "formula",
           chapterNumber: chapter.number,
           title: concept.title,
-          prompt: `استرجع القانون ${index + 1} من: ${concept.title}`,
+          prompt: `Recall formula ${index + 1} from: ${concept.title}`,
           formulas: [formula],
           bodyAr: concept.contentAr,
           noteAr: concept.importantNoteAr,
@@ -111,7 +107,7 @@ function patternSteps(pattern: PracticalPattern, chapterNumber: number): StudyCa
     kind: "problem-steps",
     chapterNumber,
     title: pattern.problemType,
-    prompt: `إزاي تحل نوع: ${pattern.problemType}؟`,
+    prompt: `How do you solve: ${pattern.problemType}?`,
     stepsAr: pattern.stepsAr,
     answer: pattern.workedExample.finalAnswer,
     exampleProblem: pattern.workedExample.problem,
@@ -129,7 +125,7 @@ function problemStepCards(): StudyCard[] {
     kind: "problem-steps",
     chapterNumber: problem.chapterNumber,
     title: problem.problemType,
-    prompt: `إزاي تحل نوع: ${problem.problemType}؟`,
+    prompt: `How do you solve: ${problem.problemType}?`,
     stepsAr: problem.solutionStepsAr,
     answer: problem.correctAnswer,
     exampleProblem: problem.question,

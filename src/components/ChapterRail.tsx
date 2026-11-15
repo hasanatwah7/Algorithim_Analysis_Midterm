@@ -23,7 +23,7 @@ export function ChapterRail({
             onClick={() => onChange(chapter.number)}
             aria-pressed={isActive}
             className={cn(
-              "group relative flex min-w-[176px] shrink-0 flex-col gap-2 rounded-[14px] border px-3.5 py-3 text-right transition-colors duration-150",
+              "group relative flex min-w-[176px] shrink-0 flex-col gap-2 rounded-[14px] border px-3.5 py-3 text-left transition-colors duration-150",
               isActive
                 ? "border-ember/40 bg-ember/[0.07]"
                 : "border-white/[0.07] bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]",
@@ -50,8 +50,9 @@ export function ChapterRail({
               ) : null}
             </div>
             <div
+              dir="rtl"
               className={cn(
-                "line-clamp-2 text-[12px] font-semibold leading-[1.5]",
+                "mixed-ar line-clamp-2 text-right text-[12px] font-semibold leading-[1.5]",
                 isActive ? "text-chalk" : "text-mist",
               )}
             >

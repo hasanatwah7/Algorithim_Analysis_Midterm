@@ -26,23 +26,23 @@ const presets: RecurrencePreset[] = [
     },
     steps: [
       {
-        title: "اقرأ a و b و f(n)",
-        body: "من المعادلة: فيه استدعاءين، وحجم المشكلة بينقسم على 2، والشغل خارج الاستدعاء خطي.",
+        title: "Read a, b, and f(n)",
+        body: "From the recurrence: two recursive calls, the problem size halves, and the work outside the calls is linear.",
         formulas: ["a=2,\\quad b=2,\\quad f(n)=n"],
       },
       {
-        title: "احسب الحد الحرج",
-        body: "الحد الحرج هو n مرفوع لأس log_b a. هنا الأس = 1، فالحد الحرج = n.",
+        title: "Compute the critical term",
+        body: "The critical term is n raised to log_b a. Here the exponent is 1, so the critical term is n.",
         formulas: ["n^{\\log_b a}=n^{\\log_2 2}=n"],
       },
       {
-        title: "اختار الـ Case",
-        body: "f(n) يساوي الحد الحرج مضروب في log^0 n → Case 2 مع k = 0.",
+        title: "Pick the case",
+        body: "f(n) equals the critical term times log^0 n → Case 2 with k = 0.",
         formulas: ["f(n)=\\Theta(n^{\\log_b a}\\log^0 n)"],
       },
       {
-        title: "اكتب الناتج",
-        body: "Case 2 بتزود قوة اللوغاريتم واحد، فالناتج n log n.",
+        title: "Write the answer",
+        body: "Case 2 adds one to the logarithm's power, so the answer is n log n.",
         formulas: ["T(n)=\\Theta(n\\log n)"],
       },
     ],
@@ -60,23 +60,23 @@ const presets: RecurrencePreset[] = [
     },
     steps: [
       {
-        title: "اقرأ القيم",
-        body: "3 استدعاءات، كل واحد على n/6، والشغل الخارجي n.",
+        title: "Read the values",
+        body: "3 calls, each on n/6, and the outside work is n.",
         formulas: ["a=3,\\quad b=6,\\quad f(n)=n"],
       },
       {
-        title: "الحد الحرج",
-        body: "log_6 3 ≈ 0.613، فأي n^1 أكبر منه بفارق واضح.",
+        title: "Critical term",
+        body: "log_6 3 ≈ 0.613, so n^1 is clearly larger.",
         formulas: ["n^{\\log_6 3}\\approx n^{0.613}"],
       },
       {
-        title: "تحقق من Case 3",
-        body: "f(n) أكبر من الحد الحرج بأس ε، وشرط الـ regularity محقق لأن 3(n/6) = n/2 ≤ δn لأي δ ≥ 1/2.",
+        title: "Check Case 3",
+        body: "f(n) exceeds the critical term by an ε exponent, and the regularity condition holds because 3(n/6) = n/2 ≤ δn for any δ ≥ 1/2.",
         formulas: ["af(n/b)=3(n/6)=n/2\\le \\delta n"],
       },
       {
-        title: "اكتب الناتج",
-        body: "Case 3 بياخد f(n) نفسه، فالناتج خطي.",
+        title: "Write the answer",
+        body: "Case 3 takes f(n) itself, so the result is linear.",
         formulas: ["T(n)=\\Theta(n)"],
       },
     ],
@@ -88,23 +88,23 @@ const presets: RecurrencePreset[] = [
     answer: "\\Theta(\\log n)",
     steps: [
       {
-        title: "غيّر المتغير",
-        body: "خلّي z = log n، يعني n = 2^z. عندها √n = 2^{z/2}.",
+        title: "Change the variable",
+        body: "Let z = log n, meaning n = 2^z. Then √n = 2^{z/2}.",
         formulas: ["z=\\log n,\\quad n=2^z,\\quad \\sqrt n=2^{z/2}"],
       },
       {
-        title: "اكتب S(z)",
-        body: "عرّف S(z) = T(2^z)، فتتحول المعادلة لشكل Master Theorem.",
+        title: "Write S(z)",
+        body: "Define S(z) = T(2^z); the recurrence becomes Master-Theorem shaped.",
         formulas: ["S(z)=2S(z/2)+O(1)"],
       },
       {
-        title: "طبّق Master",
-        body: "a=2, b=2 → الحد الحرج z^1، و f(z)=O(1) أصغر → Case 1.",
+        title: "Apply Master",
+        body: "a=2, b=2 → critical term z^1, and f(z)=O(1) is smaller → Case 1.",
         formulas: ["S(z)=\\Theta(z^{\\log_2 2})=\\Theta(z)"],
       },
       {
-        title: "رجّع المتغير",
-        body: "بما أن z = log n، الناتج النهائي لوغاريتمي.",
+        title: "Switch back",
+        body: "Since z = log n, the final result is logarithmic.",
         formulas: ["T(n)=\\Theta(\\log n)"],
       },
     ],
@@ -116,8 +116,8 @@ const presets: RecurrencePreset[] = [
     answer: "O(2^n)",
     steps: [
       {
-        title: "فكّ أول 3 خطوات",
-        body: "كل مرة بتنزل n بواحد، والشغل بيتراكم كمجموع قوى 2.",
+        title: "Unroll the first 3 steps",
+        body: "Each step drops n by one, and the work accumulates as a sum of powers of 2.",
         formulas: [
           "T(n)=T(n-1)+2^n",
           "=T(n-2)+2^{n-1}+2^n",
@@ -125,13 +125,13 @@ const presets: RecurrencePreset[] = [
         ],
       },
       {
-        title: "طبّق قانون المتسلسلة الهندسية",
-        body: "المجموع من 2^1 لـ 2^n = 2(2^n − 1) = 2^{n+1} − 2.",
+        title: "Apply the geometric-series formula",
+        body: "The sum from 2^1 to 2^n = 2(2^n − 1) = 2^{n+1} − 2.",
         formulas: ["\\sum_{i=1}^{n}2^i=2(2^n-1)=2^{n+1}-2"],
       },
       {
-        title: "خد الحد المسيطر",
-        body: "2^n هو الحد الأكبر، فالتعقيد الأسي.",
+        title: "Take the dominant term",
+        body: "2^n is the largest term, so the complexity is exponential.",
         formulas: ["T(n)=O(2^n)"],
       },
     ],
@@ -147,7 +147,7 @@ export function RecurrenceBench() {
   return (
     <BenchShell
       title="Recurrence Bench"
-      description="اختار recurrence من المحاضرة، وشوف قرار Master Theorem أو خطوات فكّ المعادلة."
+      description="Pick a recurrence from the lecture and see the Master Theorem decision or the unrolling steps."
       controls={
         <div className="flex flex-wrap gap-1.5">
           {presets.map((item) => (
@@ -167,7 +167,7 @@ export function RecurrenceBench() {
       }
     >
       <div className="mb-4 rounded-[13px] border border-white/[0.06] bg-black/25 px-4 py-3">
-        <div className="text-[10px] text-dim">المعادلة</div>
+        <div className="text-[10px] text-dim">Recurrence</div>
         <div className="mt-1.5 overflow-x-auto">
           <Formula tex={preset.recurrence} display />
         </div>
@@ -194,7 +194,7 @@ export function RecurrenceBench() {
 
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <div className="text-[10.5px] text-dim">
-          الخطوة {step + 1} من {preset.steps.length}
+          Step {step + 1} of {preset.steps.length}
         </div>
         <BenchControls
           index={step}
@@ -209,7 +209,7 @@ export function RecurrenceBench() {
 
       <div className="rounded-[14px] border border-white/[0.06] bg-black/20 p-4">
         <div className="text-[14px] font-semibold text-chalk">{current.title}</div>
-        <p className="mixed-ar mt-1.5 max-w-[64ch] text-[12px] leading-7 text-mist">
+        <p className="mt-1.5 max-w-[64ch] text-[12px] leading-7 text-mist">
           {current.body}
         </p>
         <div className="mt-3 grid gap-2">
@@ -222,7 +222,7 @@ export function RecurrenceBench() {
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-[11px] border border-jade/20 bg-jade/[0.04] px-3.5 py-2.5">
-        <span className="text-[10.5px] text-mist">الناتج النهائي</span>
+        <span className="text-[10.5px] text-mist">Final answer</span>
         <span className="text-jade">
           <Formula tex={preset.answer} />
         </span>

@@ -6,20 +6,20 @@ import { BenchControls, BenchShell } from "@/components/benches/BenchShell";
 const inductionSteps = [
   {
     label: "Basis",
-    title: "أصغر قيمتين",
-    body: "عوّض n = 1 و n = 2. الاتنين بيحققوا المتباينة، فالبداية سليمة.",
+    title: "The two smallest values",
+    body: "Substitute n = 1 and n = 2. Both satisfy the inequality, so the base is sound.",
     formulas: ["F(1)=1 < 2^1=2", "F(2)=2 < 2^2=4"],
   },
   {
     label: "Hypothesis",
-    title: "فرض الاستقراء",
-    body: "افترض أن F(i) < 2^i صحيحة لكل i < n، وده مسموح لأن Fibonacci بتعتمد على آخر قيمتين.",
+    title: "Induction hypothesis",
+    body: "Assume F(i) < 2^i holds for every i < n. That's allowed because Fibonacci depends on the previous two values.",
     formulas: ["F(i) < 2^i \\quad \\forall\\ i < n"],
   },
   {
     label: "Step",
-    title: "الخطوة الاستقرائية",
-    body: "فكّ F(n) باستخدام التعريف، طبّق الفرض على الحدين، وبسّط — الناتج 2^n.",
+    title: "Inductive step",
+    body: "Expand F(n) using the definition, apply the hypothesis to both terms, and simplify — the result is 2^n.",
     formulas: [
       "F(n)=F(n-1)+F(n-2)",
       "< 2^{n-1}+2^{n-2}",
@@ -41,7 +41,7 @@ export function InductionBench() {
   return (
     <BenchShell
       title="Proof & Summation Bench"
-      description="اتنقل بين خطوات استقراء Fibonacci، أو جرّب قوانين المجموع بنفسك."
+      description="Move through the Fibonacci induction steps, or try the summation formulas yourself."
       controls={
         <div className="flex gap-1.5">
           <Chip active={mode === "proof"} tone="ember" onClick={() => setMode("proof")}>
@@ -85,7 +85,7 @@ export function InductionBench() {
           <div className="rounded-[14px] border border-white/[0.06] bg-black/20 p-4">
             <div className="text-[10.5px] font-medium text-ember">{current.label}</div>
             <div className="mt-1 text-[15px] font-semibold text-chalk">{current.title}</div>
-            <p className="mixed-ar mt-2 max-w-[62ch] text-[12.5px] leading-7 text-mist">
+            <p className="mt-2 max-w-[62ch] text-[12.5px] leading-7 text-mist">
               {current.body}
             </p>
             <div className="mt-3 grid gap-2">
@@ -99,9 +99,9 @@ export function InductionBench() {
           <div className="mt-3 flex items-start gap-2 rounded-[12px] border border-ember/15 bg-ember/[0.04] px-3 py-2.5">
             <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-ember" />
             <p className="text-[10.5px] leading-5 text-mist">
-              التريك: في خطوة n استخدم الفرض على <span className="font-mono text-ember">n-1</span> و
-              <span className="font-mono text-ember"> n-2</span>، وبعدها كبّر الحد الأصغر لـ
-              <span className="font-mono text-ember"> 2^(n-1)</span> عشان توصل لـ 2^n.
+              Trick: at step n, apply the hypothesis to <span className="font-mono text-ember">n-1</span> and
+              <span className="font-mono text-ember"> n-2</span>, then grow the smaller term to
+              <span className="font-mono text-ember"> 2^(n-1)</span> to reach 2^n.
             </p>
           </div>
         </div>
@@ -117,7 +117,7 @@ export function InductionBench() {
                 value={n}
                 onChange={(event) => setN(Number(event.target.value))}
                 className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/10 accent-[#E7A24B]"
-                aria-label="اختر قيمة n"
+                aria-label="Choose a value for n"
               />
               <span className="tabular w-6 text-center font-mono text-ember">{n}</span>
             </label>
@@ -157,7 +157,7 @@ export function InductionBench() {
             </div>
           </div>
           <p className="mt-3 text-[10.5px] leading-5 text-dim">
-            جرّب n كبيرة: المتسلسلة الهندسية بتضاعف القيمة كل خطوة، بينما الحسابية بتزيد خطياً.
+            Try a large n: the geometric series doubles at every step, while the arithmetic one grows linearly.
           </p>
         </div>
       )}

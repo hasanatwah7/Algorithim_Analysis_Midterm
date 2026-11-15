@@ -22,7 +22,6 @@ import { Formula } from "@/components/Formula";
 import { CodeBlock } from "@/components/CodeBlock";
 import { ProgressBar, Ring } from "@/components/Progress";
 import { playSound } from "@/lib/sfx";
-import { cn } from "@/lib/format";
 
 const kinds: Array<CardKind | "mixed"> = [
   "mixed",
@@ -37,17 +36,14 @@ function CardFace({ card, side }: { card: StudyCard; side: "front" | "back" }) {
     return (
       <div className="flex h-full flex-col">
         <div className="flex flex-wrap items-center gap-1.5">
-          <Tag tone="ember">{cardKindMeta[card.kind].arabic}</Tag>
+          <Tag tone="ember">{cardKindMeta[card.kind].label}</Tag>
           <Tag tone="mono">Chapter {card.chapterNumber}</Tag>
           {card.source ? <Tag>{card.source}</Tag> : null}
         </div>
         <div className="flex flex-1 flex-col justify-center py-6">
           <div
-            dir={card.kind === "theory-qa" ? "ltr" : "rtl"}
-            className={cn(
-              "text-balance text-[18px] font-semibold leading-[1.6] tracking-[-0.02em] text-chalk sm:text-[22px]",
-              card.kind === "theory-qa" ? "text-left" : "text-right",
-            )}
+            dir="ltr"
+            className="text-balance text-left text-[18px] font-semibold leading-[1.6] tracking-[-0.02em] text-chalk sm:text-[22px]"
           >
             {card.prompt}
           </div>
@@ -74,7 +70,7 @@ function CardFace({ card, side }: { card: StudyCard; side: "front" | "back" }) {
           ) : null}
         </div>
         <div className="flex items-center justify-between border-t border-white/[0.06] pt-3">
-          <span className="text-[10px] text-dim">اقلب البطاقة عشان تشوف الإجابة</span>
+          <span className="text-[10px] text-dim">Flip the card to see the answer</span>
           <span className="flex items-center gap-1.5 font-mono text-[9px] text-dim">
             <kbd className="rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5">Space</kbd>
             flip
@@ -87,20 +83,15 @@ function CardFace({ card, side }: { card: StudyCard; side: "front" | "back" }) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-wrap items-center gap-1.5">
-        <Tag tone="jade">الإجابة</Tag>
+        <Tag tone="jade">Answer</Tag>
         <Tag tone="mono">Chapter {card.chapterNumber}</Tag>
         {card.source ? <Tag>{card.source}</Tag> : null}
       </div>
       <div className="mt-3 flex-1 overflow-y-auto pl-1 pr-1">
         {card.answer ? (
           <div
-            dir={card.kind === "theory-qa" || card.kind === "formula" ? "ltr" : "rtl"}
-            className={cn(
-              "mb-3 rounded-[12px] border border-jade/20 bg-jade/[0.05] px-3.5 py-2.5",
-              card.kind === "theory-qa" || card.kind === "formula"
-                ? "text-left font-mono text-[12px] text-jade"
-                : "text-right text-[12.5px] font-semibold text-jade",
-            )}
+            dir="ltr"
+            className="mb-3 rounded-[12px] border border-jade/20 bg-jade/[0.05] px-3.5 py-2.5 text-left font-mono text-[12px] text-jade"
           >
             {card.answer}
           </div>
@@ -144,7 +135,7 @@ function CardFace({ card, side }: { card: StudyCard; side: "front" | "back" }) {
 
         {card.noteAr ? (
           <div className="rounded-[10px] border border-ember/15 bg-ember/[0.04] px-3 py-2">
-            <div className="mb-1 text-[9.5px] font-medium text-ember">تريك</div>
+            <div className="mb-1 text-[9.5px] font-medium text-ember">Trick</div>
             <p className="mixed-ar text-[11px] leading-6 text-mist">{card.noteAr}</p>
           </div>
         ) : null}
@@ -164,7 +155,7 @@ function CardFace({ card, side }: { card: StudyCard; side: "front" | "back" }) {
         ) : null}
       </div>
       <div className="mt-3 flex items-center justify-between border-t border-white/[0.06] pt-3">
-        <span className="text-[10px] text-dim">قيّم نفسك بصراحة</span>
+        <span className="text-[10px] text-dim">Grade yourself honestly</span>
         <span className="flex items-center gap-1.5 font-mono text-[9px] text-dim">
           <kbd className="rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5">1</kbd>
           got it
@@ -297,7 +288,7 @@ export function FlashcardDeck({
               tone="ember"
               onClick={() => changeKind(value)}
             >
-              {value === "mixed" ? "Mixed" : cardKindMeta[value].arabic}
+              {value === "mixed" ? "Mixed" : cardKindMeta[value].label}
               <span className="font-mono text-[9px] opacity-60">
                 {cardsFor(chapterNumber, value).length}
               </span>
@@ -311,7 +302,7 @@ export function FlashcardDeck({
             onClick={() => setOnlyUnmastered((value) => !value)}
           >
             <Check size={11} />
-            غير المتقن فقط
+            Unmastered only
           </Chip>
           <Chip
             active={shuffled}
@@ -319,7 +310,7 @@ export function FlashcardDeck({
             onClick={() => setShuffled((value) => !value)}
           >
             <Shuffle size={11} />
-            خلط
+            Shuffle
           </Chip>
           <Button
             variant="quiet"
@@ -328,7 +319,7 @@ export function FlashcardDeck({
             className="gap-1.5"
           >
             <RotateCcw size={13} />
-            إعادة الجلسة
+            Restart session
           </Button>
         </div>
       </div>
@@ -340,7 +331,7 @@ export function FlashcardDeck({
               Deck progress · {mastered.length} / {initialTotal || availableCards.length}
             </span>
             <span>
-              متقن في الشابتر: {masteredInDeck} / {availableCards.length}
+              Mastered in chapter: {masteredInDeck} / {availableCards.length}
             </span>
           </div>
           <ProgressBar value={progress} tone="jade" />
@@ -362,33 +353,33 @@ export function FlashcardDeck({
           <div className="mb-4 grid h-12 w-12 place-items-center rounded-2xl border border-jade/25 bg-jade/[0.07] text-jade">
             <Sparkles size={20} />
           </div>
-          <h3 className="text-[15px] font-semibold text-chalk">كل البطاقات دي متقنة</h3>
+          <h3 className="text-[15px] font-semibold text-chalk">Every card here is mastered</h3>
           <p className="mt-1.5 max-w-[44ch] text-[12px] leading-6 text-dim">
-            مفيش بطاقات متبقية في الفلتر الحالي. اقفل «غير المتقن فقط» لو عايز تراجع كل
-            حاجة، أو جرّب نوع deck تاني.
+            No cards left in the current filter. Turn off "Unmastered only" to
+            review everything, or try another deck type.
           </p>
           <Button
             variant="secondary"
             className="mt-4"
             onClick={() => setOnlyUnmastered(false)}
           >
-            اعرض كل البطاقات
+            Show all cards
           </Button>
         </div>
       ) : done ? (
         <div className="glass flex flex-col items-center rounded-[20px] px-6 py-12 text-center">
           <Ring value={1} size={104} label="100%" sublabel="deck cleared" />
-          <h3 className="mt-4 text-[16px] font-semibold text-chalk">الجلسة خلصت</h3>
+          <h3 className="mt-4 text-[16px] font-semibold text-chalk">Session complete</h3>
           <p className="mt-1.5 max-w-[44ch] text-[12px] leading-6 text-dim">
-            {mastered.length} بطاقة اتقنت، و{missed} misses. الـ cards اللي غلطت فيها
-            اتسجلت في تقدمك وهتظهر في Weak Topics.
+            {mastered.length} cards mastered and {missed} misses. Cards you missed
+            were saved to your progress and show up under Weak Topics.
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-2">
             <Button variant="primary" onClick={() => setSessionKey((value) => value + 1)}>
-              جلسة جديدة
+              New session
             </Button>
             <Button variant="secondary" onClick={() => setOnlyUnmastered(false)}>
-              راجع الكل
+              Review all
             </Button>
           </div>
         </div>
@@ -400,7 +391,7 @@ export function FlashcardDeck({
               data-flipped={flipped ? "true" : "false"}
               role="button"
               tabIndex={0}
-              aria-label={flipped ? "اقلب البطاقة للوجه الأمامي" : "اقلب البطاقة للإجابة"}
+              aria-label={flipped ? "Flip card to the front" : "Flip card to the answer"}
               onClick={() => {
                 setFlipped((value) => {
                   if (!value) playSound("flip", state.prefs.sfx);
@@ -435,7 +426,7 @@ export function FlashcardDeck({
                   className="gap-2"
                 >
                   <FlipHorizontal2 size={16} />
-                  اقلب البطاقة
+                  Flip card
                 </Button>
               ) : (
                 <>
@@ -463,10 +454,10 @@ export function FlashcardDeck({
             <div className="flex items-center gap-3 text-[10px] text-dim">
               <span className="flex items-center gap-1">
                 <Layers size={11} />
-                {queue.length} متبقي
+                {queue.length} left
               </span>
               <span className="h-1 w-1 rounded-full bg-white/15" />
-              <span>الـ missed بترجع بعد 3 بطاقات</span>
+              <span>Missed cards return after 3 cards</span>
             </div>
           </div>
 

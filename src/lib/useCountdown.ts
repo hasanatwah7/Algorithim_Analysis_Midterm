@@ -38,28 +38,29 @@ export function useCountdown({
 
   useEffect(() => {
     if (!running) return;
-    if (remaining <= 0) return;
     const interval = window.setInterval(() => {
-      setRemaining((current) => {
-        if (current <= 1) {
-          window.clearInterval(interval);
-          if (!firedRef.current) {
-            firedRef.current = true;
-            setRunning(false);
-            expireRef.current?.();
-          }
-          return 0;
-        }
-        return current - 1;
-      });
+      setRemaining((current) => Math.max(0, current - 1));
     }, 1000);
     return () => window.clearInterval(interval);
-  }, [running, remaining <= 0]);
+  }, [running]);
+
+  // Fire the expiry callback after the countdown renders at zero, never inside a
+  // state updater (that would update another component while rendering).
+  useEffect(() => {
+    if (!running || remaining > 0) return;
+    setRunning(false);
+    if (firedRef.current) return;
+    firedRef.current = true;
+    expireRef.current?.();
+  }, [running, remaining]);
 
   const start = useCallback(() => {
-    setRemaining((current) => (current <= 0 ? seconds : current));
+    if (remaining <= 0) {
+      setRemaining(seconds);
+      firedRef.current = false;
+    }
     setRunning(true);
-  }, [seconds]);
+  }, [seconds, remaining]);
 
   const pause = useCallback(() => setRunning(false), []);
 

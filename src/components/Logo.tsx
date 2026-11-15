@@ -44,7 +44,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
     <Link
       to="/"
       className="group flex items-center gap-2.5"
-      aria-label="VECTR ALGO — الرئيسية"
+      aria-label="VECTR ALGO — home"
     >
       <LogoMark size={compact ? 30 : 34} />
       <span

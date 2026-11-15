@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  ArrowLeft,
+  ArrowRight,
   BookMarked,
   Check,
   ChevronLeft,
@@ -26,6 +26,8 @@ import {
 } from "@/lib/questions";
 import { getChapterStats, useProgress } from "@/lib/progress";
 import { cn } from "@/lib/format";
+
+const hasArabic = /[\u0600-\u06FF]/;
 
 export function PatternsPage() {
   const { state, updatePrefs, setPatternMark, answerQuestion } = useProgress();
@@ -74,7 +76,7 @@ export function PatternsPage() {
   if (!chapter) {
     return (
       <div className="glass rounded-[20px] p-8 text-center text-mist">
-        تعذّر تحميل بيانات الشابتر.
+        Couldn't load chapter data.
       </div>
     );
   }
@@ -83,14 +85,13 @@ export function PatternsPage() {
     <div>
       <PageHeader
         eyebrow="DEPARTMENT 02 · PATTERNS"
-        title="أطلس أنواع المسائل"
-        titleEn="Problem-Type Atlas"
-        description="لكل شابتر: نوع المسألة، خطوات الحل المجردة، مثال محلول كامل، وتمارين AI عملية. علّم كل نوع بـ Known أو Shaky عشان تعرف ترجع لإيه."
+        title="Problem-Type Atlas"
+        description="For every chapter: the problem type, its abstract solution steps, a full worked example, and AI practice drills. Mark each type Known or Shaky so you know what to revisit."
         actions={
           <Link to="/solve">
             <Button variant="primary" size="sm" className="gap-1.5">
               <Target size={14} />
-              طبّق في الحل
+              Practice in Solve
             </Button>
           </Link>
         }
@@ -106,7 +107,7 @@ export function PatternsPage() {
             <Tag tone="mono">{drills.length} AI drills</Tag>
           </div>
           <h2 className="mt-2 text-[17px] font-bold tracking-[-0.03em] text-chalk">
-            {chapter.titleAr}
+            {chapter.title}
           </h2>
           <p className="mixed-ar mt-1 text-[11.5px] leading-6 text-dim">
             {chapter.summaryAr}
@@ -128,7 +129,7 @@ export function PatternsPage() {
         <aside className="lg:sticky lg:top-[86px] lg:self-start">
           <div className="mb-2 flex items-center gap-2 px-1 text-[10.5px] font-medium text-dim">
             <Layers size={13} className="text-ember" />
-            أنواع المسائل
+            Problem types
           </div>
           <div className="grid gap-2">
             {chapter.practical.map((pattern, index) => {
@@ -140,7 +141,7 @@ export function PatternsPage() {
                   type="button"
                   onClick={() => setSelectedPatternId(pattern.id)}
                   className={cn(
-                    "group rounded-[13px] border px-3.5 py-3 text-right transition-colors",
+                    "group rounded-[13px] border px-3.5 py-3 text-left transition-colors",
                     isActive
                       ? "border-ember/40 bg-ember/[0.07]"
                       : "border-white/[0.07] bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]",
@@ -164,7 +165,7 @@ export function PatternsPage() {
                   </div>
                   <div
                     className={cn(
-                      "mt-1 line-clamp-2 text-[11.5px] font-medium leading-5",
+                      "mixed-ar mt-1 line-clamp-2 text-[11.5px] font-medium leading-5",
                       isActive ? "text-chalk" : "text-mist",
                     )}
                   >
@@ -178,11 +179,11 @@ export function PatternsPage() {
           <div className="mt-3 rounded-[12px] border border-white/[0.06] bg-white/[0.02] p-3">
             <div className="flex items-center gap-1.5 text-[10px] font-medium text-dim">
               <CircleHelp size={12} className="text-ember" />
-              طريقة الاستخدام
+              How to use
             </div>
             <p className="mt-1.5 text-[10px] leading-5 text-dim">
-              اقرأ الخطوات، جرّب المثال بنفسك، بعدين علّم النوع. الـ Shaky هتلاقيه في
-              Weak Topics بالداشبورد.
+              Read the steps, try the example yourself, then mark the type. Shaky
+              types show up under Weak Topics on the dashboard.
             </p>
           </div>
         </aside>
@@ -234,9 +235,9 @@ export function PatternsPage() {
                 <div className="mt-4 border-t border-white/[0.06] pt-4">
                   <div className="mb-2.5 flex items-center gap-2 text-[11px] font-semibold text-mist">
                     <ListOrdered size={14} className="text-ember" />
-                    خطوات الحل المجردة
+                    Abstract solution steps
                   </div>
-                  <ol className="grid gap-2">
+                  <ol dir="rtl" className="grid gap-2">
                     {activePattern.stepsAr.map((step, index) => (
                       <li
                         key={index}
@@ -257,17 +258,17 @@ export function PatternsPage() {
               <SpotlightCard className="p-5">
                 <div className="mb-3 flex items-center gap-2">
                   <Sparkles size={15} className="text-ember" />
-                  <h3 className="text-[13px] font-semibold text-chalk">مثال محلول من المحاضرة</h3>
+                  <h3 className="text-[13px] font-semibold text-chalk">Worked example from the lecture</h3>
                 </div>
                 <div className="rounded-[12px] border border-white/[0.07] bg-black/25 px-3.5 py-3">
                   <div className="mb-1 font-mono text-[9px] tracking-[0.1em] text-dim">
                     PROBLEM
                   </div>
-                  <p className="mixed-ar text-[12.5px] leading-7 text-[#d6dce6]">
+                  <p dir="rtl" className="mixed-ar text-[12.5px] leading-7 text-[#d6dce6]">
                     {activePattern.workedExample.problem}
                   </p>
                 </div>
-                <ol className="mt-3 grid gap-2">
+                <ol dir="rtl" className="mt-3 grid gap-2">
                   {activePattern.workedExample.solutionStepsAr.map((step, index) => (
                     <li
                       key={index}
@@ -283,10 +284,15 @@ export function PatternsPage() {
                   ))}
                 </ol>
                 <div className="mt-3 flex flex-col gap-1 rounded-[11px] border border-jade/20 bg-jade/[0.05] px-3.5 py-2.5 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="text-[10px] text-dim">الناتج النهائي</span>
+                  <span className="text-[10px] text-dim">Final answer</span>
                   <span
-                    dir="ltr"
-                    className="text-left font-mono text-[12px] font-semibold text-jade"
+                    dir={hasArabic.test(activePattern.workedExample.finalAnswer) ? "rtl" : "ltr"}
+                    className={cn(
+                      "text-[12px] font-semibold text-jade",
+                      hasArabic.test(activePattern.workedExample.finalAnswer)
+                        ? "mixed-ar"
+                        : "text-left font-mono",
+                    )}
                   >
                     {activePattern.workedExample.finalAnswer}
                   </span>
@@ -299,7 +305,7 @@ export function PatternsPage() {
                     <div className="flex items-center gap-2">
                       <Target size={15} className="text-ember" />
                       <h3 className="text-[13px] font-semibold text-chalk">
-                        تدريبات عملية على نفس الشابتر
+                        Practice drills for this chapter
                       </h3>
                     </div>
                     <span className="font-mono text-[9.5px] text-dim">
@@ -340,18 +346,18 @@ export function PatternsPage() {
 
               <div className="flex flex-col items-start justify-between gap-3 rounded-[16px] border border-white/[0.07] bg-white/[0.02] px-4 py-3.5 sm:flex-row sm:items-center">
                 <p className="text-[11.5px] leading-6 text-mist">
-                  خلصت النوع ده؟ جرّب تحل أسئلة الشابتر كاملة أو ارجع للبطاقات.
+                  Finished this type? Solve the full chapter or go back to the cards.
                 </p>
                 <div className="flex gap-2">
                   <Link to="/solve">
                     <Button variant="secondary" size="sm" className="gap-1.5">
-                      أسئلة الشابتر
-                      <ArrowLeft size={13} />
+                      Chapter questions
+                      <ArrowRight size={13} />
                     </Button>
                   </Link>
                   <Link to="/study">
                     <Button variant="quiet" size="sm">
-                      البطاقات
+                      Cards
                     </Button>
                   </Link>
                 </div>
@@ -359,7 +365,7 @@ export function PatternsPage() {
             </div>
           ) : (
             <div className="glass rounded-[18px] p-8 text-center text-mist">
-              مفيش أنواع مسائل مسجلة للشابتر ده.
+              No problem types recorded for this chapter.
             </div>
           )}
         </div>
@@ -374,7 +380,7 @@ export function PatternsPage() {
 
       <div className="mt-6 flex items-center gap-2 text-[10px] text-dim">
         <ChevronLeft size={12} />
-        <span>كل المحتوى من المحاضرات وبنك الأسئلة — بدون أي تعديل أو تلخيص.</span>
+        <span>All content comes from the lectures and question bank — no edits, no summaries.</span>
       </div>
     </div>
   );

@@ -5,10 +5,10 @@ import { Button } from "@/components/Button";
 import { cn } from "@/lib/format";
 
 const links = [
-  { to: "/", label: "الرئيسية", english: "Home", icon: Home },
-  { to: "/study", label: "المذاكرة", english: "Study", icon: BookOpen },
-  { to: "/patterns", label: "أنواع المسائل", english: "Patterns", icon: Layers },
-  { to: "/solve", label: "حل", english: "Solve", icon: ListChecks },
+  { to: "/", label: "Home", icon: Home },
+  { to: "/study", label: "Study", icon: BookOpen },
+  { to: "/patterns", label: "Patterns", icon: Layers },
+  { to: "/solve", label: "Solve", icon: ListChecks },
 ];
 
 export function Nav() {
@@ -20,13 +20,13 @@ export function Nav() {
         href="#main"
         className="fixed right-4 top-4 z-[100] -translate-y-24 rounded-lg bg-ember px-4 py-2 text-sm font-semibold text-[#1b1206] transition-transform focus:translate-y-0"
       >
-        تخطَّ إلى المحتوى
+        Skip to content
       </a>
       <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5">
         <div className="glass-strong mx-auto flex h-[58px] max-w-[1280px] items-center justify-between gap-4 rounded-[16px] px-3 sm:px-4">
           <Logo compact />
 
-          <nav aria-label="التنقل الرئيسي" className="hidden items-center gap-1 lg:flex">
+          <nav aria-label="Main navigation" className="hidden items-center gap-1 lg:flex">
             {links.map((link) => {
               const active =
                 link.to === "/"
@@ -45,9 +45,6 @@ export function Nav() {
                   )}
                 >
                   {link.label}
-                  <span className="mr-1.5 font-mono text-[9.5px] tracking-[0.04em] text-dim/70">
-                    {link.english}
-                  </span>
                   {active ? (
                     <span className="absolute inset-x-3 -bottom-[1px] h-[2px] rounded-full bg-ember" />
                   ) : null}
@@ -66,8 +63,7 @@ export function Nav() {
             <Link to="/speedrun">
               <Button variant="primary" size="sm" className="gap-1.5">
                 <Zap size={14} />
-                <span className="hidden xs:inline">Speedrun</span>
-                <span className="xs:hidden">ابدأ</span>
+                <span>Speedrun</span>
               </Button>
             </Link>
           </div>
@@ -75,7 +71,7 @@ export function Nav() {
       </header>
 
       <nav
-        aria-label="تنقل الموبايل"
+        aria-label="Mobile navigation"
         className="glass-strong fixed inset-x-3 bottom-3 z-50 flex items-center justify-around rounded-[16px] px-1 py-1.5 lg:hidden"
       >
         {links.map((link) => {
@@ -109,7 +105,7 @@ export function Nav() {
           }
         >
           <Timer size={17} strokeWidth={1.8} />
-          <span>امتحان</span>
+          <span>Mock</span>
         </NavLink>
       </nav>
     </>

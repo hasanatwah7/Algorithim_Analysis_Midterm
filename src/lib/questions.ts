@@ -48,11 +48,6 @@ export function chapterLabel(number: number | "general"): string {
   return chapterMap.get(number)?.title ?? `Chapter ${number}`;
 }
 
-export function chapterArabicLabel(number: number | "general"): string {
-  if (number === "general") return "عام";
-  return chapterMap.get(number)?.titleAr ?? `الشابتر ${number}`;
-}
-
 const difficultyPriority: Record<Difficulty, 1 | 2 | 3> = {
   Hard: 1,
   Medium: 2,
@@ -157,17 +152,6 @@ export function originLabel(origin: QuestionOrigin): string {
       return "AI Theory";
     case "ai-practical":
       return "AI Practical";
-  }
-}
-
-export function originArabic(origin: QuestionOrigin): string {
-  switch (origin) {
-    case "quiz":
-      return "أسئلة الامتحان";
-    case "ai-theory":
-      return "نظري إضافي";
-    case "ai-practical":
-      return "مسائل إضافية";
   }
 }
 

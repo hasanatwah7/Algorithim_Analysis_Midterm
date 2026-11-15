@@ -71,7 +71,7 @@ export function BenchControls({
         onClick={onReset}
         className="rounded-[8px] border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-[10.5px] text-dim transition-colors hover:text-chalk"
       >
-        إعادة
+        Reset
       </button>
       {onPlay ? (
         <button
@@ -79,7 +79,7 @@ export function BenchControls({
           onClick={onPlay}
           className="rounded-[8px] border border-ember/25 bg-ember/[0.08] px-2.5 py-1.5 text-[10.5px] text-ember transition-colors hover:bg-ember/[0.14]"
         >
-          {playing ? "إيقاف" : "تشغيل"}
+          {playing ? "Pause" : "Play"}
         </button>
       ) : null}
       <button
@@ -87,9 +87,9 @@ export function BenchControls({
         onClick={onPrev}
         disabled={index <= 0}
         className="grid h-8 w-8 place-items-center rounded-[8px] border border-white/[0.08] bg-white/[0.03] text-mist transition-colors hover:text-chalk disabled:opacity-35"
-        aria-label="الخطوة السابقة"
+        aria-label="Previous step"
       >
-        ›
+        ‹
       </button>
       <span className="tabular min-w-[44px] text-center font-mono text-[10px] text-dim">
         {index + 1} / {total}
@@ -99,9 +99,9 @@ export function BenchControls({
         onClick={onNext}
         disabled={index >= total - 1}
         className="grid h-8 w-8 place-items-center rounded-[8px] border border-white/[0.08] bg-white/[0.03] text-mist transition-colors hover:text-chalk disabled:opacity-35"
-        aria-label="الخطوة التالية"
+        aria-label="Next step"
       >
-        ‹
+        ›
       </button>
     </div>
   );

@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import {
-  ArrowLeft,
+  ArrowRight,
   BookOpen,
   BrainCircuit,
   CheckCircle2,
-  ChevronLeft,
+  ChevronRight,
   Flame,
   Layers,
   ListChecks,
@@ -34,25 +34,22 @@ import { cn, formatPercent } from "@/lib/format";
 const departments = [
   {
     to: "/study",
-    label: "المذاكرة",
-    english: "Study",
-    description: "نظري كامل + 143 بطاقة أنكي + بنش تفاعلي لكل شابتر.",
+    label: "Study",
+    description: "Full theory + 143 Anki cards + an interactive bench for every chapter.",
     icon: BookOpen,
     tone: "ember" as const,
   },
   {
     to: "/patterns",
-    label: "أنواع المسائل",
-    english: "Patterns",
-    description: "13 نوع مسألة بخطوات مجردة وأمثلة محلولة وتمارين عملية.",
+    label: "Patterns",
+    description: "13 problem types with abstract steps, worked examples, and practice drills.",
     icon: Layers,
     tone: "jade" as const,
   },
   {
     to: "/solve",
-    label: "حل",
-    english: "Solve",
-    description: "87 سؤال بفلاتر ومؤقت وشرح كامل لكل إجابة.",
+    label: "Solve",
+    description: "87 questions with filters, a timer, and a full explanation for every answer.",
     icon: ListChecks,
     tone: "ember" as const,
   },
@@ -115,13 +112,14 @@ export function DashboardPage() {
               <Tag tone="mono">143 CARDS</Tag>
             </div>
             <h1 className="hero-reveal text-balance text-[34px] font-extrabold leading-[1.15] tracking-[-0.045em] text-chalk sm:text-[46px]">
-              افهم الخوارزمية.
+              Understand the algorithm.
               <br />
-              <span className="text-ember">متحفظهاش.</span>
+              <span className="text-ember">Don't memorize it.</span>
             </h1>
             <p className="hero-reveal mt-3 max-w-[58ch] text-pretty text-[13px] leading-7 text-mist">
-              منصة مذاكرة كاملة للميدتيرم: نظرية مشروحة بالعربي، بطاقات استرجاع، أطلس
-              لأنواع المسائل، بنشات تفاعلية، وحل بفلاتر ومؤقت — كله محلي على جهازك.
+              A complete midterm study system: theory, retrieval cards, a
+              problem-type atlas, interactive benches, and a filterable solve
+              arena — all local to your device.
             </p>
             <div className="hero-reveal mt-5 flex flex-wrap items-center gap-2">
               <Link
@@ -130,7 +128,7 @@ export function DashboardPage() {
               >
                 <Button variant="primary" size="lg" className="gap-2">
                   <BookOpen size={16} />
-                  ابدأ من الشابتر {state.prefs.lastChapter}
+                  Start from Chapter {state.prefs.lastChapter}
                 </Button>
               </Link>
               <Link to="/speedrun">
@@ -149,15 +147,15 @@ export function DashboardPage() {
             <div className="hero-reveal mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] text-dim">
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 size={11} className="text-jade" />
-                بدون تسجيل
+                No sign-up
               </span>
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 size={11} className="text-jade" />
-                بدون سيرفر
+                No server
               </span>
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 size={11} className="text-jade" />
-                تقدمك محفوظ على جهازك
+                Progress saved on your device
               </span>
             </div>
           </div>
@@ -166,14 +164,14 @@ export function DashboardPage() {
             <SpotlightCard className="rounded-[20px] p-4 sm:p-5">
               <div className="mb-3 flex items-center justify-between">
                 <div>
-                  <div className="text-[11px] font-semibold text-chalk">الجاهزية العامة</div>
+                  <div className="text-[11px] font-semibold text-chalk">Overall readiness</div>
                   <div className="mt-0.5 text-[9.5px] text-dim">
-                    {overall.answered} من {overall.total} سؤال اتلمس
+                    {overall.answered} of {overall.total} questions touched
                   </div>
                 </div>
                 <Tag tone={overall.mastery >= 0.7 ? "jade" : "ember"}>
                   <TrendingUp size={10} />
-                  {overall.mastery >= 0.7 ? "جاهز" : "لسه"}
+                  {overall.mastery >= 0.7 ? "Ready" : "In progress"}
                 </Tag>
               </div>
               <div className="flex items-center gap-5">
@@ -181,7 +179,7 @@ export function DashboardPage() {
                 <div className="grid flex-1 gap-2.5">
                   <div>
                     <div className="mb-1 flex items-center justify-between text-[9.5px] text-dim">
-                      <span>دقة الإجابات</span>
+                      <span>Answer accuracy</span>
                       <span className="tabular font-mono text-mist">
                         {formatPercent(overall.accuracy)}
                       </span>
@@ -190,7 +188,7 @@ export function DashboardPage() {
                   </div>
                   <div>
                     <div className="mb-1 flex items-center justify-between text-[9.5px] text-dim">
-                      <span>البطاقات المتقنة</span>
+                      <span>Cards mastered</span>
                       <span className="tabular font-mono text-mist">
                         {overall.cardsMastered}/143
                       </span>
@@ -202,7 +200,7 @@ export function DashboardPage() {
                     />
                   </div>
                   <div className="flex items-center justify-between rounded-[9px] border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5">
-                    <span className="text-[9.5px] text-dim">آخر Mock</span>
+                    <span className="text-[9.5px] text-dim">Last mock</span>
                     <span className="font-mono text-[10.5px] text-chalk">
                       {mockScore !== null ? formatPercent(mockScore) : "—"}
                     </span>
@@ -237,16 +235,13 @@ export function DashboardPage() {
                 </div>
                 <h2 className="mt-3 flex items-baseline gap-2 text-[15px] font-semibold text-chalk">
                   {department.label}
-                  <span className="font-mono text-[9.5px] tracking-[0.06em] text-dim">
-                    {department.english}
-                  </span>
                 </h2>
                 <p className="mt-1 text-[11px] leading-6 text-mist">{department.description}</p>
                 <div className="mt-3 flex items-center gap-1.5 text-[10.5px] font-medium text-ember">
-                  افتح القسم
-                  <ArrowLeft
+                  Open department
+                  <ArrowRight
                     size={12}
-                    className="transition-transform group-hover:-translate-x-0.5"
+                    className="transition-transform group-hover:translate-x-0.5"
                   />
                 </div>
               </SpotlightCard>
@@ -260,14 +255,14 @@ export function DashboardPage() {
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Target size={15} className="text-ember" />
-              <h2 className="text-[13px] font-semibold text-chalk">خريطة الشابترات</h2>
+              <h2 className="text-[13px] font-semibold text-chalk">Chapter map</h2>
             </div>
             <Link
               to="/study"
               className="flex items-center gap-1 text-[10px] text-dim transition-colors hover:text-ember"
             >
-              المذاكرة
-              <ChevronLeft size={11} />
+              Study
+              <ChevronRight size={11} />
             </Link>
           </div>
           <div className="grid gap-2">
@@ -293,7 +288,7 @@ export function DashboardPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
                     <span className="truncate text-[11px] font-medium text-mist transition-colors group-hover:text-chalk">
-                      {chapter.titleAr}
+                      {chapter.title}
                     </span>
                     <span className="tabular shrink-0 font-mono text-[9px] text-dim">
                       {chapter.correct}/{chapter.total}
@@ -323,10 +318,10 @@ export function DashboardPage() {
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Flame size={15} className="text-clay" />
-                <h2 className="text-[13px] font-semibold text-chalk">نقاط الضعف</h2>
+                <h2 className="text-[13px] font-semibold text-chalk">Weak topics</h2>
               </div>
               <Tag tone={weakTopics.length ? "clay" : "jade"}>
-                {weakTopics.length ? `${weakTopics.length} topics` : "نظيف"}
+                {weakTopics.length ? `${weakTopics.length} topics` : "Clean"}
               </Tag>
             </div>
             {weakTopics.length ? (
@@ -353,9 +348,9 @@ export function DashboardPage() {
             ) : (
               <div className="flex flex-col items-center rounded-[12px] border border-jade/15 bg-jade/[0.03] px-4 py-6 text-center">
                 <CheckCircle2 size={20} className="text-jade" />
-                <div className="mt-2 text-[11.5px] font-semibold text-chalk">مفيش أخطاء مسجلة</div>
+                <div className="mt-2 text-[11.5px] font-semibold text-chalk">No mistakes logged</div>
                 <p className="mt-1 text-[10px] leading-5 text-dim">
-                  ابدأ تحل أو تذاكر — أول ما تغلط، النوع هيتسجل هنا.
+                  Start solving or studying — the first miss gets logged here.
                 </p>
               </div>
             )}
@@ -363,7 +358,7 @@ export function DashboardPage() {
               <Link to="/solve">
                 <Button variant="quiet" size="sm" className="gap-1.5">
                   <ListChecks size={12} />
-                  راجع الأخطاء
+                  Review mistakes
                 </Button>
               </Link>
               <Link to="/speedrun">
@@ -381,28 +376,28 @@ export function DashboardPage() {
               <div className="tabular mt-1.5 font-mono text-[19px] font-semibold text-chalk">
                 {overall.saved}
               </div>
-              <div className="text-[9.5px] text-dim">أسئلة محفوظة</div>
+              <div className="text-[9.5px] text-dim">Saved questions</div>
             </SpotlightCard>
             <SpotlightCard className="p-3.5">
               <BrainCircuit size={14} className="text-jade" />
               <div className="tabular mt-1.5 font-mono text-[19px] font-semibold text-chalk">
                 {overall.cardsMastered}
               </div>
-              <div className="text-[9.5px] text-dim">بطاقات متقنة</div>
+              <div className="text-[9.5px] text-dim">Cards mastered</div>
             </SpotlightCard>
             <SpotlightCard className="p-3.5">
               <CheckCircle2 size={14} className="text-jade" />
               <div className="tabular mt-1.5 font-mono text-[19px] font-semibold text-chalk">
                 {overall.correct}
               </div>
-              <div className="text-[9.5px] text-dim">إجابات صح</div>
+              <div className="text-[9.5px] text-dim">Correct answers</div>
             </SpotlightCard>
             <SpotlightCard className="p-3.5">
               <Play size={14} className="text-ember" />
               <div className="tabular mt-1.5 font-mono text-[19px] font-semibold text-chalk">
                 {state.mock ? formatPercent(mockScore ?? 0) : "—"}
               </div>
-              <div className="text-[9.5px] text-dim">أفضل Mock</div>
+              <div className="text-[9.5px] text-dim">Best mock</div>
             </SpotlightCard>
           </div>
         </div>
@@ -414,23 +409,23 @@ export function DashboardPage() {
             <Sparkles size={16} />
           </span>
           <div>
-            <div className="text-[12px] font-semibold text-chalk">نصيحة اليوم</div>
+            <div className="text-[12px] font-semibold text-chalk">Today's tip</div>
             <p className="mt-0.5 max-w-[62ch] text-[10.5px] leading-5 text-mist">
-              ذاكر شابتر واحد نظري + بطاقاته، بعدها حل 5 أسئلة عليه. التكرار المتباعد
-              أفضل من قراءة كل حاجة مرة واحدة.
+              Study one chapter's theory + its cards, then solve 5 questions on
+              it. Spaced repetition beats reading everything once.
             </p>
           </div>
         </div>
         <Link to="/patterns">
           <Button variant="secondary" size="sm" className="gap-1.5">
-            بصمج أنواع المسائل
-            <ArrowLeft size={13} />
+            Drill problem types
+            <ArrowRight size={13} />
           </Button>
         </Link>
       </div>
 
       <div className="mt-4 text-center text-[9.5px] text-dim">
-        VECTR // ALGO — مذاكرة محلية بالكامل. بياناتك مش بتسيب جهازك.
+        VECTR // ALGO — fully local study. Your data never leaves your device.
       </div>
     </div>
   );

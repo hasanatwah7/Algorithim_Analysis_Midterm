@@ -16,56 +16,56 @@ const growthFunctions: GrowthFunction[] = [
     label: "log n",
     tex: "\\log n",
     fn: (n) => Math.log2(n),
-    note: "ينمو ببطء شديد — لو n اتضاعف يزيد خطوة واحدة.",
+    note: "Grows very slowly — doubling n adds a single step.",
   },
   {
     key: "log2",
     label: "log² n",
     tex: "\\log^2 n",
     fn: (n) => Math.log2(n) ** 2,
-    note: "أسرع من log n، لكن لسه أبطأ من أي جذر.",
+    note: "Faster than log n, but still slower than any root.",
   },
   {
     key: "sqrt",
     label: "√n",
     tex: "\\sqrt{n}",
     fn: (n) => Math.sqrt(n),
-    note: "بين اللوغاريتم والخطي — مش خطي.",
+    note: "Between logarithmic and linear — but not linear.",
   },
   {
     key: "linear",
     label: "n",
     tex: "n",
     fn: (n) => n,
-    note: "خطي: ضعف الـ input = ضعف الوقت.",
+    note: "Linear: double the input, double the time.",
   },
   {
     key: "nlogn",
     label: "n log n",
     tex: "n\\log n",
     fn: (n) => n * Math.log2(n),
-    note: "الحد الفاصل لخوارزميات الترتيب المقارن الجيدة.",
+    note: "The dividing line for good comparison-sorting algorithms.",
   },
   {
     key: "quadratic",
     label: "n²",
     tex: "n^2",
     fn: (n) => n ** 2,
-    note: "تربيعي — أي loop متداخلة غالباً بتطلع كده.",
+    note: "Quadratic — nested loops usually land here.",
   },
   {
     key: "cubic",
     label: "n³",
     tex: "n^3",
     fn: (n) => n ** 3,
-    note: "تكعيبي — خطير حتى على n متوسطة.",
+    note: "Cubic — dangerous even for moderate n.",
   },
   {
     key: "exponential",
     label: "2ⁿ",
     tex: "2^n",
     fn: (n) => 2 ** n,
-    note: "أسي — أي زيادة صغيرة في n بتضاعف الوقت.",
+    note: "Exponential — any small increase in n doubles the time.",
   },
 ];
 
@@ -119,7 +119,7 @@ export function GrowthBench() {
   return (
     <BenchShell
       title="Growth Rate Bench"
-      description="اختار دالة وشوف شكل نموها على مقياس لوغاريتمي — الترتيب نفسه هو اللي بيتسأل عليه."
+      description="Pick a function and see its growth on a logarithmic scale — the ordering itself is what gets asked."
     >
       <div className="grid gap-4 lg:grid-cols-[1.35fr_1fr]">
         <div className="rounded-[14px] border border-white/[0.06] bg-black/25 p-2.5">
@@ -127,7 +127,7 @@ export function GrowthBench() {
             viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
             className="h-auto w-full"
             role="img"
-            aria-label="مقارنة معدلات نمو الدوال"
+            aria-label="Comparison of function growth rates"
           >
             {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
               const y = PAD_Y + ratio * (HEIGHT - PAD_Y * 2);
@@ -215,11 +215,11 @@ export function GrowthBench() {
 
         <div className="flex flex-col gap-2.5">
           <div className="rounded-[13px] border border-white/[0.07] bg-white/[0.025] p-3.5">
-            <div className="text-[10px] text-dim">الدالة المختارة</div>
+            <div className="text-[10px] text-dim">Selected function</div>
             <div className="mt-1.5 formula-shell !py-2">
               <Formula tex={active.tex} display />
             </div>
-            <p className="mixed-ar mt-2 text-[11px] leading-6 text-mist">{active.note}</p>
+            <p className="mt-2 text-[11px] leading-6 text-mist">{active.note}</p>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
@@ -237,7 +237,7 @@ export function GrowthBench() {
           </div>
 
           <div className="rounded-[13px] border border-ember/15 bg-ember/[0.035] p-3">
-            <div className="mb-2 text-[10px] font-medium text-ember">ترتيب النمو</div>
+            <div className="mb-2 text-[10px] font-medium text-ember">Growth order</div>
             <div className="flex flex-wrap items-center gap-x-1 gap-y-1.5 font-mono text-[9.5px] text-dim">
               {["log n", "log² n", "√n", "n", "n log n", "n²", "n³", "2ⁿ"].map(
                 (label, index, list) => (

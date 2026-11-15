@@ -14,7 +14,7 @@ import {
 } from "@/lib/questions";
 import type { CardKind } from "@/lib/cards";
 
-export type TimerMode = "off" | "question" | "group";
+export type TimerMode = "off" | "question";
 export type TimerPreset = 30 | 45 | 60 | 90;
 export type PatternMark = "known" | "shaky";
 
@@ -90,6 +90,7 @@ function loadState(): ProgressState {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return createDefaultState();
     const parsed = JSON.parse(raw) as Partial<ProgressState>;
+    const prefs = { ...defaultPrefs, ...(parsed.prefs ?? {}) };
     return {
       ...createDefaultState(),
       ...parsed,
@@ -97,7 +98,13 @@ function loadState(): ProgressState {
       saved: Array.isArray(parsed.saved) ? parsed.saved : [],
       cards: parsed.cards ?? {},
       patterns: parsed.patterns ?? {},
-      prefs: { ...defaultPrefs, ...(parsed.prefs ?? {}) },
+      prefs: {
+        ...prefs,
+        timerMode: (prefs.timerMode as string) === "question" ? "question" : "off",
+        timerPreset: ([30, 45, 60, 90] as const).includes(prefs.timerPreset)
+          ? prefs.timerPreset
+          : 60,
+      },
       mock: parsed.mock ?? null,
     };
   } catch {

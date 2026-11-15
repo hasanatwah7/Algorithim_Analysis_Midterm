@@ -26,7 +26,7 @@ function buildSteps(): HeapStep[] {
       heapSize,
       active: 0,
       swapped: [],
-      action: "BUILD-MAX-HEAP: نبدأ من i = ⌊n/2⌋ = 5 وننزل لـ 1.",
+      action: "BUILD-MAX-HEAP: start at i = ⌊n/2⌋ = 5 and walk down to 1.",
       phase: "build",
     },
   ];
@@ -48,7 +48,7 @@ function buildSteps(): HeapStep[] {
           heapSize,
           active: index,
           swapped: [],
-          action: `MAX-HEAPIFY(A, ${index}): العقدة ${array[index - 1]} أكبر من أبنائها → استقرت.`,
+          action: `MAX-HEAPIFY(A, ${index}): node ${array[index - 1]} is larger than its children → settled.`,
           phase,
         });
         return;
@@ -62,7 +62,7 @@ function buildSteps(): HeapStep[] {
         heapSize,
         active: largest,
         swapped: [index - 1, largest - 1],
-        action: `MAX-HEAPIFY(A, ${index}): ${before} < ${after} → swap(A[${index}], A[${largest}]) ثم ننزل.`,
+        action: `MAX-HEAPIFY(A, ${index}): ${before} < ${after} → swap(A[${index}], A[${largest}]) then descend.`,
         phase,
       });
       index = largest;
@@ -75,7 +75,7 @@ function buildSteps(): HeapStep[] {
       heapSize,
       active: i,
       swapped: [],
-      action: `نداء MAX-HEAPIFY(A, ${i}) — العناصر من 6 لـ 10 أوراق.`,
+      action: `Call MAX-HEAPIFY(A, ${i}) — elements 6 through 10 are leaves.`,
       phase: "build",
     });
     heapify(i);
@@ -86,7 +86,7 @@ function buildSteps(): HeapStep[] {
     heapSize,
     active: 0,
     swapped: [],
-    action: "خلص BUILD-MAX-HEAP: أكبر عنصر بقى عند الجذر A[1].",
+    action: "BUILD-MAX-HEAP done: the largest element is now at the root A[1].",
     phase: "build",
   });
 
@@ -100,7 +100,7 @@ function buildSteps(): HeapStep[] {
       heapSize,
       active: 1,
       swapped: [0, heapSize - 1],
-      action: `HEAPSORT: swap(A[1]=${root}, A[${heapSize}]=${last}) → ${root} استقر في النهاية.`,
+      action: `HEAPSORT: swap(A[1]=${root}, A[${heapSize}]=${last}) → ${root} settles at the end.`,
       phase: "sort",
     });
     heapSize -= 1;
@@ -109,7 +109,7 @@ function buildSteps(): HeapStep[] {
       heapSize,
       active: 1,
       swapped: [],
-      action: `نقص heap-size لـ ${heapSize} ثم MAX-HEAPIFY(A, 1).`,
+      action: `Decrease heap-size to ${heapSize}, then MAX-HEAPIFY(A, 1).`,
       phase: "sort",
     });
     if (heapSize > 1) heapify(1);
@@ -120,7 +120,7 @@ function buildSteps(): HeapStep[] {
     heapSize: 1,
     active: 0,
     swapped: [],
-    action: "خلص HEAPSORT: المصفوفة مرتبة تصاعدياً.",
+    action: "HEAPSORT done: the array is sorted in ascending order.",
     phase: "done",
   });
 
@@ -162,7 +162,7 @@ export function HeapBench() {
   return (
     <BenchShell
       title="Heap Visualizer"
-      description="BUILD-MAX-HEAP ثم HEAPSORT على نفس مصفوفة المحاضرة — العقد والـ swaps بيتحركوا مع كل خطوة."
+      description="BUILD-MAX-HEAP then HEAPSORT on the same lecture array — nodes and swaps move at every step."
       controls={
         <BenchControls
           index={index}
@@ -215,7 +215,7 @@ export function HeapBench() {
           viewBox={`0 0 ${WIDTH} ${svgHeight}`}
           className="h-auto w-full"
           role="img"
-          aria-label="شجرة الـ Max Heap"
+          aria-label="Max Heap tree"
         >
           {Array.from({ length: totalNodes }, (_, nodeIndex) => nodeIndex + 1).map((node) => {
             if (node === 1) return null;

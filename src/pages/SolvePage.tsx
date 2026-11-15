@@ -22,7 +22,7 @@ import { EmptyState } from "@/components/PageHeader";
 import {
   allChapterNumbers,
   allQuestions,
-  chapterArabicLabel,
+  chapterLabel,
   originLabel,
   type QuestionOrigin,
   type UnifiedQuestion,
@@ -43,11 +43,11 @@ const origins: Array<QuestionOrigin | "all"> = [
 ];
 
 const statuses: Array<{ id: StatusFilter; label: string }> = [
-  { id: "all", label: "الكل" },
-  { id: "unanswered", label: "لسه" },
-  { id: "wrong", label: "أخطاء" },
-  { id: "correct", label: "صح" },
-  { id: "saved", label: "محفوظ" },
+  { id: "all", label: "All" },
+  { id: "unanswered", label: "Unanswered" },
+  { id: "wrong", label: "Wrong" },
+  { id: "correct", label: "Correct" },
+  { id: "saved", label: "Saved" },
 ];
 
 export function SolvePage() {
@@ -118,18 +118,20 @@ export function SolvePage() {
       : null;
   const answered = selectedIndex !== null;
 
+  const markTimedOut = () => {
+    if (!current || answered) return;
+    setLocalAnswers((previous) => ({ ...previous, [current.id]: -1 }));
+    setTimedOutIds((previous) => new Set(previous).add(current.id));
+    answerQuestion(current.id, -1, false);
+    setDrawerQuestion(current);
+    setDrawerOpen(true);
+  };
+
   const countdown = useCountdown({
     seconds: state.prefs.timerPreset,
-    active: state.prefs.timerMode !== "off" && current != null && !answered,
+    active: state.prefs.timerMode === "question" && current != null && !answered,
     resetKey: current?.id ?? "none",
-    onExpire: () => {
-      if (!current) return;
-      setLocalAnswers((previous) => ({ ...previous, [current.id]: -1 }));
-      setTimedOutIds((previous) => new Set(previous).add(current.id));
-      answerQuestion(current.id, -1, false);
-      setDrawerQuestion(current);
-      setDrawerOpen(true);
-    },
+    onExpire: markTimedOut,
   });
 
   const handleSelect = useCallback(
@@ -169,9 +171,8 @@ export function SolvePage() {
     <div>
       <PageHeader
         eyebrow="DEPARTMENT 03 · SOLVE"
-        title="حل الأسئلة"
-        titleEn="Practice Arena"
-        description="87 سؤال من بنك الأسئلة والـ AI — فلتر بالشابتر أو النوع أو الحالة، وشغّل مؤقت لكل سؤال. كل إجابة بتتسجل في تقدمك."
+        title="Solve"
+        description="87 questions from the question bank and AI sets — filter by chapter, source, priority, or status, and start a per-question timer. Every answer is saved to your progress."
         actions={
           <div className="flex items-center gap-2">
             <Tag tone="mono">
@@ -197,14 +198,14 @@ export function SolvePage() {
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1.5 text-[10.5px] font-medium text-dim">
             <Filter size={12} className="text-ember" />
-            الشابتر
+            Chapter
           </div>
           <Chip
             active={chapterFilter === "all"}
             tone="ember"
             onClick={() => setChapterFilter("all")}
           >
-            الكل
+            All
           </Chip>
           {allChapterNumbers().map((number) => (
             <Chip
@@ -212,7 +213,7 @@ export function SolvePage() {
               active={chapterFilter === number}
               tone="ember"
               onClick={() => setChapterFilter(number)}
-              title={chapterArabicLabel(number)}
+              title={chapterLabel(number)}
             >
               <span className="font-mono">CH {number}</span>
             </Chip>
@@ -221,7 +222,7 @@ export function SolvePage() {
 
         <div className="grid gap-3 border-t border-white/[0.06] pt-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="ml-1 text-[10px] text-dim">المصدر</span>
+            <span className="mr-1 text-[10px] text-dim">Source</span>
             {origins.map((origin) => (
               <Chip
                 key={origin}
@@ -229,12 +230,12 @@ export function SolvePage() {
                 tone="ember"
                 onClick={() => setOriginFilter(origin)}
               >
-                {origin === "all" ? "الكل" : originLabel(origin)}
+                {origin === "all" ? "All" : originLabel(origin)}
               </Chip>
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="ml-1 text-[10px] text-dim">الأولوية</span>
+            <span className="mr-1 text-[10px] text-dim">Priority</span>
             {(["all", 1, 2, 3] as const).map((tier) => (
               <Chip
                 key={tier}
@@ -243,12 +244,12 @@ export function SolvePage() {
                 onClick={() => setTierFilter(tier)}
                 className="font-mono"
               >
-                {tier === "all" ? "الكل" : `T${tier}`}
+                {tier === "all" ? "All" : `T${tier}`}
               </Chip>
             ))}
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="ml-1 text-[10px] text-dim">الحالة</span>
+            <span className="mr-1 text-[10px] text-dim">Status</span>
             {statuses.map((status) => (
               <Chip
                 key={status.id}
@@ -268,18 +269,18 @@ export function SolvePage() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="ابحث في نص السؤال، الكود، أو الموضوع…"
+              placeholder="Search question text, code, or topic…"
               dir="auto"
               className="w-full bg-transparent text-[11.5px] text-chalk placeholder:text-dim focus:outline-none"
             />
           </label>
           <div className="flex items-center gap-2">
             <span className="text-[10.5px] text-dim">
-              {filtered.length} نتيجة · دقة {formatPercent(accuracy)}
+              {filtered.length} results · accuracy {formatPercent(accuracy)}
             </span>
             <Button variant="quiet" size="sm" onClick={resetFilters} className="gap-1.5">
               <RotateCcw size={12} />
-              تصفير
+              Reset
             </Button>
           </div>
         </div>
@@ -304,8 +305,8 @@ export function SolvePage() {
                   disabled={safeIndex <= 0}
                   className="gap-1.5"
                 >
-                  <ArrowRight size={13} />
-                  السابق
+                  <ArrowLeft size={13} />
+                  Previous
                 </Button>
                 <Button
                   variant="quiet"
@@ -314,8 +315,8 @@ export function SolvePage() {
                   disabled={safeIndex >= filtered.length - 1}
                   className="gap-1.5"
                 >
-                  التالي
-                  <ArrowLeft size={13} />
+                  Next
+                  <ArrowRight size={13} />
                 </Button>
               </div>
             </div>
@@ -337,7 +338,7 @@ export function SolvePage() {
               onNext={
                 safeIndex < filtered.length - 1 ? () => goTo(safeIndex + 1) : undefined
               }
-              nextLabel="السؤال التالي"
+              nextLabel="Next question"
             />
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[14px] border border-white/[0.06] bg-white/[0.02] px-4 py-3">
@@ -349,15 +350,15 @@ export function SolvePage() {
                     ) : (
                       <XCircle size={10} />
                     )}
-                    {currentRecord.correct ? "محلول صح" : "محتاج مراجعة"}
+                    {currentRecord.correct ? "Solved" : "Needs review"}
                   </Tag>
                 ) : (
-                  <Tag>لسه متحلش</Tag>
+                  <Tag>Not attempted</Tag>
                 )}
                 {state.saved.includes(current.id) ? (
                   <Tag tone="ember">
                     <Star size={10} fill="currentColor" />
-                    محفوظ
+                    Saved
                   </Tag>
                 ) : null}
                 <Tag tone="mono">{current.sourceLabel}</Tag>
@@ -373,13 +374,13 @@ export function SolvePage() {
                 className="gap-1.5"
               >
                 <Target size={13} />
-                الشرح الكامل
+                Full explanation
               </Button>
             </div>
 
             <div className="mt-4 rounded-[14px] border border-white/[0.06] bg-white/[0.02] p-3">
               <div className="mb-2 flex items-center justify-between text-[10px] text-dim">
-                <span>موقعك في القائمة</span>
+                <span>Your position in the list</span>
                 <span className="tabular font-mono">{formatPercent(sessionProgress)}</span>
               </div>
               <ProgressBar value={sessionProgress} tone="ember" />
@@ -392,7 +393,7 @@ export function SolvePage() {
                       key={question.id}
                       type="button"
                       onClick={() => goTo(questionIndex)}
-                      aria-label={`السؤال ${questionIndex + 1}`}
+                      aria-label={`Question ${questionIndex + 1}`}
                       className={cn(
                         "h-6 w-6 shrink-0 rounded-[5px] border font-mono text-[8.5px] transition-colors",
                         isCurrent
@@ -415,30 +416,30 @@ export function SolvePage() {
           <aside className="flex flex-col gap-3 lg:sticky lg:top-[86px] lg:self-start">
             <div className="glass rounded-[16px] p-4">
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-[12px] font-semibold text-chalk">الفلاتر الحالية</h3>
+                <h3 className="text-[12px] font-semibold text-chalk">Current filters</h3>
                 <Tag tone="mono">{filtered.length}</Tag>
               </div>
               <div className="grid gap-2 text-[10.5px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-dim">الشابتر</span>
+                  <span className="text-dim">Chapter</span>
                   <span className="text-mist">
-                    {chapterFilter === "all" ? "الكل" : `CH ${chapterFilter}`}
+                    {chapterFilter === "all" ? "All" : `CH ${chapterFilter}`}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-dim">المصدر</span>
+                  <span className="text-dim">Source</span>
                   <span className="text-mist">
-                    {originFilter === "all" ? "الكل" : originLabel(originFilter)}
+                    {originFilter === "all" ? "All" : originLabel(originFilter)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-dim">الأولوية</span>
+                  <span className="text-dim">Priority</span>
                   <span className="font-mono text-mist">
-                    {tierFilter === "all" ? "الكل" : `Tier ${tierFilter}`}
+                    {tierFilter === "all" ? "All" : `Tier ${tierFilter}`}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-dim">الحالة</span>
+                  <span className="text-dim">Status</span>
                   <span className="text-mist">
                     {statuses.find((status) => status.id === statusFilter)?.label}
                   </span>
@@ -448,7 +449,7 @@ export function SolvePage() {
 
             <div className="glass rounded-[16px] p-4">
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-[12px] font-semibold text-chalk">أرقام سريعة</h3>
+                <h3 className="text-[12px] font-semibold text-chalk">Quick stats</h3>
                 <Target size={13} className="text-ember" />
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -456,34 +457,35 @@ export function SolvePage() {
                   <div className="tabular font-mono text-[16px] text-jade">
                     {correctInFilter.length}
                   </div>
-                  <div className="text-[9px] text-dim">صح</div>
+                  <div className="text-[9px] text-dim">Correct</div>
                 </div>
                 <div className="rounded-[10px] border border-white/[0.06] bg-white/[0.02] px-2.5 py-2">
                   <div className="tabular font-mono text-[16px] text-clay">
                     {answeredInFilter.length - correctInFilter.length}
                   </div>
-                  <div className="text-[9px] text-dim">غلط</div>
+                  <div className="text-[9px] text-dim">Wrong</div>
                 </div>
                 <div className="rounded-[10px] border border-white/[0.06] bg-white/[0.02] px-2.5 py-2">
                   <div className="tabular font-mono text-[16px] text-chalk">
                     {filtered.length - answeredInFilter.length}
                   </div>
-                  <div className="text-[9px] text-dim">لسه</div>
+                  <div className="text-[9px] text-dim">Unanswered</div>
                 </div>
                 <div className="rounded-[10px] border border-white/[0.06] bg-white/[0.02] px-2.5 py-2">
                   <div className="tabular font-mono text-[16px] text-ember">
                     {state.saved.length}
                   </div>
-                  <div className="text-[9px] text-dim">محفوظ</div>
+                  <div className="text-[9px] text-dim">Saved</div>
                 </div>
               </div>
             </div>
 
             <div className="rounded-[14px] border border-ember/15 bg-ember/[0.035] p-3.5">
-              <div className="mb-1.5 text-[10px] font-medium text-ember">تريك المؤقت</div>
+              <div className="mb-1.5 text-[10px] font-medium text-ember">Timer behavior</div>
               <p className="text-[10px] leading-5 text-dim">
-                لما الوقت يخلص والسؤال مش محلول، هيتسجل غلط ويتفتح الشرح تلقائياً. تقدر
-                تقفل المؤقت من الإعدادات في الأعلى.
+                When time runs out on an unanswered question, it's logged wrong and
+                the explanation opens automatically. You can turn the timer off in
+                the settings above.
               </p>
             </div>
           </aside>
@@ -491,11 +493,11 @@ export function SolvePage() {
       ) : (
         <EmptyState
           icon={<Search size={20} />}
-          title="مفيش أسئلة مطابقة للفلاتر"
-          description="جرّب تصفير الفلاتر أو غيّر الشابتر/الحالة. كل الأسئلة موجودة محلياً ومفيش حاجة ناقصة."
+          title="No questions match these filters"
+          description="Try resetting the filters or changing chapter/status. Every question is stored locally — nothing is missing."
           action={
             <Button variant="primary" onClick={resetFilters}>
-              تصفير الفلاتر
+              Reset filters
             </Button>
           }
         />

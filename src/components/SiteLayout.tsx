@@ -28,7 +28,7 @@ export function SiteLayout() {
                 VECTR // ALGO
               </div>
               <div className="mt-0.5 text-[10.5px] text-dim">
-                مذاكرة الخوارزميات — كل التقدم محفوظ على جهازك فقط.
+                Algorithms study — all progress stays on your device.
               </div>
             </div>
           </div>
@@ -39,7 +39,7 @@ export function SiteLayout() {
             <span className="hidden h-1 w-1 rounded-full bg-white/15 sm:block" />
             <span>143 cards</span>
             <span className="hidden h-1 w-1 rounded-full bg-white/15 sm:block" />
-            <span>بدون سيرفر · بدون تسجيل</span>
+            <span>No server · No sign-up</span>
           </div>
         </div>
       </footer>
