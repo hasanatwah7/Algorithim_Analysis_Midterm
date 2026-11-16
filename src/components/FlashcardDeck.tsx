@@ -9,12 +9,8 @@ import {
   X,
 } from "lucide-react";
 import type { StudyCard } from "@/lib/cards";
-import {
-  cardKindMeta,
-  cardsFor,
-  shuffleCards,
-  type CardKind,
-} from "@/lib/cards";
+import { cardsFor, shuffleCards, type CardKind } from "@/lib/cards";
+import type { StudyLang } from "@/data/study_en";
 import { useProgress } from "@/lib/progress";
 import { Button } from "@/components/Button";
 import { Chip, Tag } from "@/components/Chip";
@@ -31,28 +27,141 @@ const kinds: Array<CardKind | "mixed"> = [
   "problem-steps",
 ];
 
-function CardFace({ card, side }: { card: StudyCard; side: "front" | "back" }) {
+const hasArabic = /[\u0600-\u06FF]/;
+
+const deckCopy = {
+  en: {
+    mixed: "Mixed",
+    unmasteredOnly: "Unmastered only",
+    shuffle: "Shuffle",
+    restart: "Restart session",
+    deckProgress: (done: number, total: number) =>
+      `Deck progress · ${done} / ${total}`,
+    masteredInChapter: (done: number, total: number) =>
+      `Mastered in chapter: ${done} / ${total}`,
+    gotIt: "got it",
+    missed: "missed",
+    emptyTitle: "Every card here is mastered",
+    emptyBody:
+      'No cards left in the current filter. Turn off "Unmastered only" to review everything, or try another deck type.',
+    showAll: "Show all cards",
+    deckCleared: "deck cleared",
+    sessionComplete: "Session complete",
+    doneBody: (mastered: number, missed: number) =>
+      `${mastered} cards mastered and ${missed} misses. Cards you missed were saved to your progress and show up under Weak Topics.`,
+    newSession: "New session",
+    reviewAll: "Review all",
+    flipAriaFront: "Flip card to the answer",
+    flipAriaBack: "Flip card to the front",
+    flipCard: "Flip card",
+    missedIt: "Missed it",
+    gotItBtn: "Got it",
+    left: (count: number) => `${count} left`,
+    missedReturn: "Missed cards return after 3 cards",
+    flipHint: "Flip the card to see the answer",
+    flipKey: "flip",
+    answer: "Answer",
+    trick: "Trick",
+    gradeHonestly: "Grade yourself honestly",
+    chapterTag: (n: number) => `Chapter ${n}`,
+    kindLabels: {
+      concept: "Concepts",
+      formula: "Formulas",
+      "theory-qa": "Theory Q&A",
+      "problem-steps": "Problem Steps",
+    },
+  },
+  ar: {
+    mixed: "مختلط",
+    unmasteredOnly: "غير المتقن فقط",
+    shuffle: "خلط",
+    restart: "إعادة الجلسة",
+    deckProgress: (done: number, total: number) =>
+      `تقدم المجموعة · ${done} / ${total}`,
+    masteredInChapter: (done: number, total: number) =>
+      `متقن في الشابتر: ${done} / ${total}`,
+    gotIt: "عرفتها",
+    missed: "غلطت",
+    emptyTitle: "كل الكروت هنا متقنة",
+    emptyBody:
+      "مفيش كروت متبقية في الفلتر الحالي. اقفل «غير المتقن فقط» عشان تراجع الكل، أو جرّب نوع مجموعة تاني.",
+    showAll: "اعرض كل الكروت",
+    deckCleared: "المجموعة خلصت",
+    sessionComplete: "الجلسة خلصت",
+    doneBody: (mastered: number, missed: number) =>
+      `${mastered} كارت اتقنت و${missed} غلطة. الكروت اللي غلطت فيها اتحفظت في تقدمك وبتظهر في «المواضيع الضعيفة».`,
+    newSession: "جلسة جديدة",
+    reviewAll: "راجع الكل",
+    flipAriaFront: "اقلب الكارت للإجابة",
+    flipAriaBack: "اقلب الكارت للوجه الأمامي",
+    flipCard: "اقلب الكارت",
+    missedIt: "غلطتها",
+    gotItBtn: "عرفتها",
+    left: (count: number) => `فاضل ${count}`,
+    missedReturn: "الكروت اللي غلطت فيها بترجع بعد 3 كروت",
+    flipHint: "اقلب الكارت عشان تشوف الإجابة",
+    flipKey: "اقلب",
+    answer: "الإجابة",
+    trick: "تريك",
+    gradeHonestly: "قيّم نفسك بصراحة",
+    chapterTag: (n: number) => `الشابتر ${n}`,
+    kindLabels: {
+      concept: "المفاهيم",
+      formula: "القوانين",
+      "theory-qa": "سؤال وجواب",
+      "problem-steps": "خطوات المسائل",
+    },
+  },
+} as const;
+
+function CardFace({
+  card,
+  side,
+  lang,
+}: {
+  card: StudyCard;
+  side: "front" | "back";
+  lang: StudyLang;
+}) {
+  const isAr = lang === "ar";
+  const t = deckCopy[lang];
+  const en = isAr ? undefined : card.en;
+  const body = isAr ? card.bodyAr : en?.body;
+  const note = isAr ? card.noteAr : en?.note;
+  const steps = isAr ? card.stepsAr : en?.steps;
+  const answer = en?.answer ?? card.answer;
+  const exampleProblem = en?.exampleProblem ?? card.exampleProblem;
+  const prompt = isAr ? card.promptAr ?? card.prompt : card.prompt;
+
   if (side === "front") {
     return (
       <div className="flex h-full flex-col">
         <div className="flex flex-wrap items-center gap-1.5">
-          <Tag tone="ember">{cardKindMeta[card.kind].label}</Tag>
-          <Tag tone="mono">Chapter {card.chapterNumber}</Tag>
-          {card.source ? <Tag>{card.source}</Tag> : null}
+          <Tag tone="ember">{t.kindLabels[card.kind]}</Tag>
+          <Tag tone="mono">{t.chapterTag(card.chapterNumber)}</Tag>
+          {!isAr && card.source ? <Tag>{card.source}</Tag> : null}
         </div>
         <div className="flex flex-1 flex-col justify-center py-6">
           <div
-            dir="ltr"
-            className="text-balance text-left text-[18px] font-semibold leading-[1.6] tracking-[-0.02em] text-chalk sm:text-[22px]"
+            dir={isAr ? "rtl" : "ltr"}
+            className={
+              isAr
+                ? "mixed-ar text-balance text-[18px] font-semibold leading-[1.6] tracking-[-0.02em] text-chalk sm:text-[22px]"
+                : "text-balance text-start text-[18px] font-semibold leading-[1.6] tracking-[-0.02em] text-chalk sm:text-[22px]"
+            }
           >
-            {card.prompt}
+            {prompt}
           </div>
-          {card.exampleProblem ? (
+          {exampleProblem ? (
             <p
-              dir="ltr"
-              className="mt-4 line-clamp-4 text-left font-mono text-[11px] leading-6 text-dim"
+              dir={hasArabic.test(exampleProblem) ? "rtl" : "ltr"}
+              className={
+                hasArabic.test(exampleProblem)
+                  ? "mixed-ar mt-4 line-clamp-4 text-[11px] leading-6 text-dim"
+                  : "mt-4 line-clamp-4 text-start font-mono text-[11px] leading-6 text-dim"
+              }
             >
-              {card.exampleProblem}
+              {exampleProblem}
             </p>
           ) : null}
           {card.keyTerms?.length ? (
@@ -70,10 +179,10 @@ function CardFace({ card, side }: { card: StudyCard; side: "front" | "back" }) {
           ) : null}
         </div>
         <div className="flex items-center justify-between border-t border-white/[0.06] pt-3">
-          <span className="text-[10px] text-dim">Flip the card to see the answer</span>
+          <span className="text-[10px] text-dim">{t.flipHint}</span>
           <span className="flex items-center gap-1.5 font-mono text-[9px] text-dim">
             <kbd className="rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5">Space</kbd>
-            flip
+            {t.flipKey}
           </span>
         </div>
       </div>
@@ -83,17 +192,17 @@ function CardFace({ card, side }: { card: StudyCard; side: "front" | "back" }) {
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-wrap items-center gap-1.5">
-        <Tag tone="jade">Answer</Tag>
-        <Tag tone="mono">Chapter {card.chapterNumber}</Tag>
-        {card.source ? <Tag>{card.source}</Tag> : null}
+        <Tag tone="jade">{t.answer}</Tag>
+        <Tag tone="mono">{t.chapterTag(card.chapterNumber)}</Tag>
+        {!isAr && card.source ? <Tag>{card.source}</Tag> : null}
       </div>
       <div className="mt-3 flex-1 overflow-y-auto pl-1 pr-1">
-        {card.answer ? (
+        {answer ? (
           <div
             dir="ltr"
-            className="mb-3 rounded-[12px] border border-jade/20 bg-jade/[0.05] px-3.5 py-2.5 text-left font-mono text-[12px] text-jade"
+            className="mb-3 rounded-[12px] border border-jade/20 bg-jade/[0.05] px-3.5 py-2.5 text-start font-mono text-[12px] text-jade"
           >
-            {card.answer}
+            {answer}
           </div>
         ) : null}
 
@@ -107,15 +216,22 @@ function CardFace({ card, side }: { card: StudyCard; side: "front" | "back" }) {
           </div>
         ) : null}
 
-        {card.bodyAr ? (
-          <p className="mixed-ar mb-3 text-[12.5px] leading-[2] text-[#d6dce6]">
-            {card.bodyAr}
+        {body ? (
+          <p
+            dir={isAr ? "rtl" : "ltr"}
+            className={
+              isAr
+                ? "mixed-ar mb-3 text-[12.5px] leading-[2] text-[#d6dce6]"
+                : "mb-3 text-[12.5px] leading-[2] text-[#d6dce6]"
+            }
+          >
+            {body}
           </p>
         ) : null}
 
-        {card.stepsAr?.length ? (
-          <ol className="mb-3 grid gap-2">
-            {card.stepsAr.map((step, index) => (
+        {steps?.length ? (
+          <ol dir={isAr ? "rtl" : "ltr"} className="mb-3 grid gap-2">
+            {steps.map((step, index) => (
               <li
                 key={index}
                 className="flex gap-2.5 rounded-[10px] border border-white/[0.06] bg-white/[0.02] px-3 py-2"
@@ -123,7 +239,13 @@ function CardFace({ card, side }: { card: StudyCard; side: "front" | "back" }) {
                 <span className="mt-0.5 font-mono text-[9px] text-ember">
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <span className="mixed-ar flex-1 text-[11.5px] leading-6 text-mist">
+                <span
+                  className={
+                    isAr
+                      ? "mixed-ar flex-1 text-[11.5px] leading-6 text-mist"
+                      : "flex-1 text-[11.5px] leading-6 text-mist"
+                  }
+                >
                   {step}
                 </span>
               </li>
@@ -133,10 +255,19 @@ function CardFace({ card, side }: { card: StudyCard; side: "front" | "back" }) {
 
         {card.code ? <CodeBlock code={card.code} className="mb-3" /> : null}
 
-        {card.noteAr ? (
+        {note ? (
           <div className="rounded-[10px] border border-ember/15 bg-ember/[0.04] px-3 py-2">
-            <div className="mb-1 text-[9.5px] font-medium text-ember">Trick</div>
-            <p className="mixed-ar text-[11px] leading-6 text-mist">{card.noteAr}</p>
+            <div className="mb-1 text-[9.5px] font-medium text-ember">{t.trick}</div>
+            <p
+              dir={isAr ? "rtl" : "ltr"}
+              className={
+                isAr
+                  ? "mixed-ar text-[11px] leading-6 text-mist"
+                  : "text-[11px] leading-6 text-mist"
+              }
+            >
+              {note}
+            </p>
           </div>
         ) : null}
 
@@ -155,12 +286,12 @@ function CardFace({ card, side }: { card: StudyCard; side: "front" | "back" }) {
         ) : null}
       </div>
       <div className="mt-3 flex items-center justify-between border-t border-white/[0.06] pt-3">
-        <span className="text-[10px] text-dim">Grade yourself honestly</span>
+        <span className="text-[10px] text-dim">{t.gradeHonestly}</span>
         <span className="flex items-center gap-1.5 font-mono text-[9px] text-dim">
           <kbd className="rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5">1</kbd>
-          got it
+          {t.gotIt}
           <kbd className="rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5">2</kbd>
-          missed
+          {t.missed}
         </span>
       </div>
     </div>
@@ -169,12 +300,16 @@ function CardFace({ card, side }: { card: StudyCard; side: "front" | "back" }) {
 
 export function FlashcardDeck({
   chapterNumber,
+  lang,
   onAllMasteredChange,
 }: {
   chapterNumber: number;
+  lang: StudyLang;
   onAllMasteredChange?: (allMastered: boolean) => void;
 }) {
   const { state, setCardResult, updatePrefs } = useProgress();
+  const t = deckCopy[lang];
+  const isAr = lang === "ar";
   const [kind, setKind] = useState<CardKind | "mixed">(state.prefs.lastCardKind);
   const [onlyUnmastered, setOnlyUnmastered] = useState(true);
   const [shuffled, setShuffled] = useState(true);
@@ -288,7 +423,7 @@ export function FlashcardDeck({
               tone="ember"
               onClick={() => changeKind(value)}
             >
-              {value === "mixed" ? "Mixed" : cardKindMeta[value].label}
+              {value === "mixed" ? t.mixed : t.kindLabels[value]}
               <span className="font-mono text-[9px] opacity-60">
                 {cardsFor(chapterNumber, value).length}
               </span>
@@ -302,7 +437,7 @@ export function FlashcardDeck({
             onClick={() => setOnlyUnmastered((value) => !value)}
           >
             <Check size={11} />
-            Unmastered only
+            {t.unmasteredOnly}
           </Chip>
           <Chip
             active={shuffled}
@@ -310,7 +445,7 @@ export function FlashcardDeck({
             onClick={() => setShuffled((value) => !value)}
           >
             <Shuffle size={11} />
-            Shuffle
+            {t.shuffle}
           </Chip>
           <Button
             variant="quiet"
@@ -319,7 +454,7 @@ export function FlashcardDeck({
             className="gap-1.5"
           >
             <RotateCcw size={13} />
-            Restart session
+            {t.restart}
           </Button>
         </div>
       </div>
@@ -328,10 +463,13 @@ export function FlashcardDeck({
         <div>
           <div className="mb-1.5 flex items-center justify-between text-[10px] text-dim">
             <span>
-              Deck progress · {mastered.length} / {initialTotal || availableCards.length}
+              {t.deckProgress(
+                mastered.length,
+                initialTotal || availableCards.length,
+              )}
             </span>
             <span>
-              Mastered in chapter: {masteredInDeck} / {availableCards.length}
+              {t.masteredInChapter(masteredInDeck, availableCards.length)}
             </span>
           </div>
           <ProgressBar value={progress} tone="jade" />
@@ -339,11 +477,11 @@ export function FlashcardDeck({
         <div className="flex items-center gap-4">
           <div className="text-center">
             <div className="tabular font-mono text-[15px] text-jade">{mastered.length}</div>
-            <div className="text-[9px] text-dim">got it</div>
+            <div className="text-[9px] text-dim">{t.gotIt}</div>
           </div>
           <div className="text-center">
             <div className="tabular font-mono text-[15px] text-clay">{missed}</div>
-            <div className="text-[9px] text-dim">missed</div>
+            <div className="text-[9px] text-dim">{t.missed}</div>
           </div>
         </div>
       </div>
@@ -353,33 +491,31 @@ export function FlashcardDeck({
           <div className="mb-4 grid h-12 w-12 place-items-center rounded-2xl border border-jade/25 bg-jade/[0.07] text-jade">
             <Sparkles size={20} />
           </div>
-          <h3 className="text-[15px] font-semibold text-chalk">Every card here is mastered</h3>
+          <h3 className="text-[15px] font-semibold text-chalk">{t.emptyTitle}</h3>
           <p className="mt-1.5 max-w-[44ch] text-[12px] leading-6 text-dim">
-            No cards left in the current filter. Turn off "Unmastered only" to
-            review everything, or try another deck type.
+            {t.emptyBody}
           </p>
           <Button
             variant="secondary"
             className="mt-4"
             onClick={() => setOnlyUnmastered(false)}
           >
-            Show all cards
+            {t.showAll}
           </Button>
         </div>
       ) : done ? (
         <div className="glass flex flex-col items-center rounded-[20px] px-6 py-12 text-center">
-          <Ring value={1} size={104} label="100%" sublabel="deck cleared" />
-          <h3 className="mt-4 text-[16px] font-semibold text-chalk">Session complete</h3>
+          <Ring value={1} size={104} label="100%" sublabel={t.deckCleared} />
+          <h3 className="mt-4 text-[16px] font-semibold text-chalk">{t.sessionComplete}</h3>
           <p className="mt-1.5 max-w-[44ch] text-[12px] leading-6 text-dim">
-            {mastered.length} cards mastered and {missed} misses. Cards you missed
-            were saved to your progress and show up under Weak Topics.
+            {t.doneBody(mastered.length, missed)}
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-2">
             <Button variant="primary" onClick={() => setSessionKey((value) => value + 1)}>
-              New session
+              {t.newSession}
             </Button>
             <Button variant="secondary" onClick={() => setOnlyUnmastered(false)}>
-              Review all
+              {t.reviewAll}
             </Button>
           </div>
         </div>
@@ -391,7 +527,7 @@ export function FlashcardDeck({
               data-flipped={flipped ? "true" : "false"}
               role="button"
               tabIndex={0}
-              aria-label={flipped ? "Flip card to the front" : "Flip card to the answer"}
+              aria-label={flipped ? t.flipAriaBack : t.flipAriaFront}
               onClick={() => {
                 setFlipped((value) => {
                   if (!value) playSound("flip", state.prefs.sfx);
@@ -405,10 +541,10 @@ export function FlashcardDeck({
               }}
             >
               <div className="flip-face glass absolute inset-0 rounded-[22px] p-5 sm:p-6">
-                <CardFace card={current} side="front" />
+                <CardFace card={current} side="front" lang={lang} />
               </div>
               <div className="flip-face flip-back glass-strong absolute inset-0 rounded-[22px] p-5 sm:p-6">
-                <CardFace card={current} side="back" />
+                <CardFace card={current} side="back" lang={lang} />
               </div>
             </div>
           </div>
@@ -426,7 +562,7 @@ export function FlashcardDeck({
                   className="gap-2"
                 >
                   <FlipHorizontal2 size={16} />
-                  Flip card
+                  {t.flipCard}
                 </Button>
               ) : (
                 <>
@@ -437,7 +573,7 @@ export function FlashcardDeck({
                     className="gap-2 border-clay/25 bg-clay/[0.08] text-clay hover:bg-clay/[0.12]"
                   >
                     <X size={16} />
-                    Missed it
+                    {t.missedIt}
                   </Button>
                   <Button
                     variant="primary"
@@ -446,7 +582,7 @@ export function FlashcardDeck({
                     className="gap-2 !bg-jade !text-[#08140d] hover:!bg-[#86c79e]"
                   >
                     <Check size={16} />
-                    Got it
+                    {t.gotItBtn}
                   </Button>
                 </>
               )}
@@ -454,16 +590,17 @@ export function FlashcardDeck({
             <div className="flex items-center gap-3 text-[10px] text-dim">
               <span className="flex items-center gap-1">
                 <Layers size={11} />
-                {queue.length} left
+                {t.left(queue.length)}
               </span>
               <span className="h-1 w-1 rounded-full bg-white/15" />
-              <span>Missed cards return after 3 cards</span>
+              <span>{t.missedReturn}</span>
             </div>
           </div>
 
           <div className="mt-3 flex justify-center">
             <span className="font-mono text-[9px] text-dim">
-              {current.kind} · {current.source}
+              {t.kindLabels[current.kind]}
+              {!isAr && current.source ? ` · ${current.source}` : ""}
             </span>
           </div>
         </div>

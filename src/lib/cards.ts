@@ -4,8 +4,22 @@ import {
 } from "@/data/data";
 import { aiPracticalProblems } from "@/data/ai_questions";
 import { aiTheoryDeck, quizDeck } from "@/lib/questions";
+import {
+  aiTheoryExplanationEn,
+  conceptEn,
+  quizExplanationEn,
+} from "@/data/study_en";
+import { drillStepsEn, patternEn } from "@/data/patterns_en";
 
 export type CardKind = "concept" | "formula" | "theory-qa" | "problem-steps";
+
+export interface StudyCardEn {
+  body?: string;
+  note?: string;
+  steps?: string[];
+  exampleProblem?: string;
+  answer?: string;
+}
 
 export interface StudyCard {
   id: string;
@@ -13,6 +27,7 @@ export interface StudyCard {
   chapterNumber: number;
   title: string;
   prompt: string;
+  promptAr?: string;
   bodyAr?: string;
   keyTerms?: string[];
   formulas?: string[];
@@ -22,6 +37,7 @@ export interface StudyCard {
   stepsAr?: string[];
   source?: string;
   exampleProblem?: string;
+  en?: StudyCardEn;
 }
 
 export const cardKindMeta: Record<
@@ -48,18 +64,23 @@ export const cardKindMeta: Record<
 
 function conceptCards(): StudyCard[] {
   return chapters.flatMap((chapter) =>
-    chapter.theory.map((concept) => ({
-      id: `concept-${concept.id}`,
-      kind: "concept" as const,
-      chapterNumber: chapter.number,
-      title: concept.title,
-      prompt: `Explain: ${concept.title}`,
-      bodyAr: concept.contentAr,
-      keyTerms: concept.keyTerms,
-      formulas: concept.formulas,
-      noteAr: concept.importantNoteAr,
-      source: "Theory",
-    })),
+    chapter.theory.map((concept) => {
+      const en = conceptEn[concept.id];
+      return {
+        id: `concept-${concept.id}`,
+        kind: "concept" as const,
+        chapterNumber: chapter.number,
+        title: concept.title,
+        prompt: `Explain: ${concept.title}`,
+        promptAr: `اشرح: ${concept.title}`,
+        bodyAr: concept.contentAr,
+        keyTerms: concept.keyTerms,
+        formulas: concept.formulas,
+        noteAr: concept.importantNoteAr,
+        source: "Theory",
+        en: en ? { body: en.body, note: en.note } : undefined,
+      };
+    }),
   );
 }
 
@@ -69,16 +90,19 @@ function formulaCards(): StudyCard[] {
     for (const concept of chapter.theory) {
       if (!concept.formulas?.length) continue;
       concept.formulas.forEach((formula, index) => {
+        const en = conceptEn[concept.id];
         cards.push({
           id: `formula-${concept.id}-${index + 1}`,
           kind: "formula",
           chapterNumber: chapter.number,
           title: concept.title,
           prompt: `Recall formula ${index + 1} from: ${concept.title}`,
+          promptAr: `استرجع القانون ${index + 1} من: ${concept.title}`,
           formulas: [formula],
           bodyAr: concept.contentAr,
           noteAr: concept.importantNoteAr,
           source: "Theory formula",
+          en: en ? { body: en.body, note: en.note } : undefined,
         });
       });
     }
@@ -87,31 +111,46 @@ function formulaCards(): StudyCard[] {
 }
 
 function theoryQaCards(): StudyCard[] {
-  return [...quizDeck, ...aiTheoryDeck].map((question) => ({
-    id: `qa-${question.id}`,
-    kind: "theory-qa" as const,
-    chapterNumber:
-      question.chapterNumber === "general" ? 0 : question.chapterNumber,
-    title: question.topic,
-    prompt: question.question,
-    code: question.code,
-    answer: question.correctAnswer,
-    bodyAr: question.explanationAr,
-    source: `${question.sourceLabel} · ${question.topic}`,
-  }));
+  return [...quizDeck, ...aiTheoryDeck].map((question) => {
+    const explanation =
+      quizExplanationEn[question.id] ?? aiTheoryExplanationEn[question.id];
+    return {
+      id: `qa-${question.id}`,
+      kind: "theory-qa" as const,
+      chapterNumber:
+        question.chapterNumber === "general" ? 0 : question.chapterNumber,
+      title: question.topic,
+      prompt: question.question,
+      code: question.code,
+      answer: question.correctAnswer,
+      bodyAr: question.explanationAr,
+      source: `${question.sourceLabel} · ${question.topic}`,
+      en: explanation ? { body: explanation } : undefined,
+    };
+  });
 }
 
 function patternSteps(pattern: PracticalPattern, chapterNumber: number): StudyCard {
+  const en = patternEn[pattern.id];
+  const englishType = en?.problemType ?? pattern.problemType;
   return {
     id: `steps-${pattern.id}`,
     kind: "problem-steps",
     chapterNumber,
-    title: pattern.problemType,
-    prompt: `How do you solve: ${pattern.problemType}?`,
+    title: englishType,
+    prompt: `How do you solve: ${englishType}?`,
+    promptAr: `إزاي تحل: ${pattern.problemType}?`,
     stepsAr: pattern.stepsAr,
     answer: pattern.workedExample.finalAnswer,
     exampleProblem: pattern.workedExample.problem,
     source: "Lecture pattern",
+    en: en
+      ? {
+          steps: en.steps,
+          answer: en.workedExample.finalAnswer,
+          exampleProblem: en.workedExample.problem,
+        }
+      : undefined,
   };
 }
 
@@ -126,11 +165,15 @@ function problemStepCards(): StudyCard[] {
     chapterNumber: problem.chapterNumber,
     title: problem.problemType,
     prompt: `How do you solve: ${problem.problemType}?`,
+    promptAr: `إزاي تحل: ${problem.problemType}?`,
     stepsAr: problem.solutionStepsAr,
     answer: problem.correctAnswer,
     exampleProblem: problem.question,
     code: problem.codeOrFormula,
     source: `AI Practical · ${problem.difficulty}`,
+    en: drillStepsEn[problem.id]
+      ? { steps: drillStepsEn[problem.id] }
+      : undefined,
   }));
 
   return [...lectureCards, ...aiCards];
